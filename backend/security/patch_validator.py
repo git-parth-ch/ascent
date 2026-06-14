@@ -10,6 +10,22 @@ def validate_patch(node_id: str, patch: Dict[str, Any], original_node: Node) -> 
     if original_node.id != node_id:
         return False, f"Node ID mismatch: expected '{original_node.id}', got '{node_id}'"
 
+    # Enforce strict key validation
+    allowed_keys = {
+        "node_id",
+        "changes",
+        "circuit_breaker",
+        "retries",
+        "timeout_ms",
+        "replicas",
+        "has_dlq",
+        "error_rate",
+        "baseline_failure_probability"
+    }
+    invalid_keys = set(patch.keys()) - allowed_keys
+    if invalid_keys:
+        return False, f"Unexpected/unsupported keys in patch: {sorted(list(invalid_keys))}"
+
     # 1. Validate retries: 0 <= retries <= 5
     if "retries" in patch:
         retries = patch["retries"]
@@ -50,5 +66,11 @@ def validate_patch(node_id: str, patch: Dict[str, Any], original_node: Node) -> 
         prob = patch["baseline_failure_probability"]
         if not isinstance(prob, (int, float)) or not (0.0 <= prob <= 1.0):
             return False, f"baseline_failure_probability {prob} must be a float between 0.0 and 1.0 inclusive."
+
+    # 6. Validate has_dlq: must be a boolean
+    if "has_dlq" in patch:
+        has_dlq = patch["has_dlq"]
+        if not isinstance(has_dlq, bool):
+            return False, f"has_dlq value {has_dlq} must be a boolean."
 
     return True, ""

@@ -54,16 +54,19 @@ class OrchestratorAgent(BaseAgent):
         for edge in blueprint.edges:
             G.add_edge(edge.from_node, edge.to_node, sync=edge.sync)
 
-        # 2. Select top K nodes where priority_score > 0.02, K = min(4, count)
-        annotated_nodes = topology_report.annotated_nodes
-        eligible_nodes = [n for n in annotated_nodes if n.priority_score > 0.02]
+        # 2. Adaptive node selection:
+        # Sort all nodes by priority_score descending
+        sorted_nodes = sorted(topology_report.annotated_nodes, key=lambda x: x.priority_score, reverse=True)
         
-        # If no nodes meet the threshold, back off to at least the top priority node to prevent empty plans
-        if not eligible_nodes and annotated_nodes:
-            eligible_nodes = [max(annotated_nodes, key=lambda x: x.priority_score)]
-            
-        sorted_nodes = sorted(eligible_nodes, key=lambda x: x.priority_score, reverse=True)
-        selected_nodes = sorted_nodes[:min(4, len(sorted_nodes))]
+        # Pick nodes that have a non-trivial vulnerability priority score (> 0.01)
+        eligible_nodes = [n for n in sorted_nodes if n.priority_score > 0.01]
+        
+        # Ensure we always select at least 2 nodes (if the system has at least 2 nodes)
+        if len(eligible_nodes) < 2 and len(sorted_nodes) >= 2:
+            eligible_nodes = sorted_nodes[:2]
+        
+        # Select up to 4 nodes with the highest priority score
+        selected_nodes = eligible_nodes[:min(4, len(eligible_nodes))]
 
         steps_data = []
         for idx, node_ann in enumerate(selected_nodes, start=1):

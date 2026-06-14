@@ -1,6 +1,7 @@
 import warnings
 from typing import List, Optional
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
+import re
 
 class Node(BaseModel):
     id: str = Field(..., description="Unique identifier for the node")
@@ -14,6 +15,15 @@ class Node(BaseModel):
     declared_criticality: Optional[float] = Field(None, description="Optional user-provided criticality score between 0.0 and 1.0")
     replicas: int = Field(..., description="Number of running replicas/instances of the node")
     has_dlq: bool = Field(False, description="Whether this node (if a queue) has a dead letter queue configured")
+
+    @field_validator("id")
+    @classmethod
+    def validate_id(cls, v: str) -> str:
+        if not re.match(r"^[a-zA-Z0-9_-]+$", v):
+            raise ValueError("Node ID must contain only alphanumeric characters, hyphens, and underscores.")
+        if len(v) > 64:
+            raise ValueError("Node ID must be 64 characters or fewer.")
+        return v
 
 class Edge(BaseModel):
     from_node: str = Field(..., alias="from", description="Source node ID")
@@ -30,6 +40,15 @@ class SystemBlueprint(BaseModel):
     nodes: List[Node]
     edges: List[Edge]
     traffic_profile: str
+
+    @field_validator("system_name")
+    @classmethod
+    def validate_system_name(cls, v: str) -> str:
+        if not re.match(r"^[a-zA-Z0-9_ .-]+$", v):
+            raise ValueError("System name must contain only alphanumeric characters, spaces, dots, hyphens, and underscores.")
+        if len(v) > 64:
+            raise ValueError("System name must be 64 characters or fewer.")
+        return v
 
     @model_validator(mode="after")
     def validate_structural_rules(self) -> "SystemBlueprint":

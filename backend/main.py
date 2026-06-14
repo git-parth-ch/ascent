@@ -1,9 +1,10 @@
 import os
 import json
 import logging
+import time
 from typing import Dict, Any, List, Optional
-from fastapi import FastAPI, HTTPException, status, Query
-from fastapi.responses import PlainTextResponse
+from fastapi import FastAPI, HTTPException, status, Query, Request
+from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -24,13 +25,49 @@ app = FastAPI(
 )
 
 # Enable CORS for frontend integration
+cors_origins_env = os.environ.get("CORS_ALLOWED_ORIGINS")
+if cors_origins_env:
+    allowed_origins = [orig.strip() for orig in cors_origins_env.split(",") if orig.strip()]
+else:
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8000"
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Simple in-memory IP rate limiter: max 20 requests per minute per IP on /analyze
+analyze_rate_limits = {}
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    if request.url.path == "/analyze" and request.method == "POST":
+        ip = request.client.host if request.client else "unknown"
+        now = time.time()
+        
+        # Clean up old timestamps for this IP (older than 60s)
+        timestamps = analyze_rate_limits.get(ip, [])
+        timestamps = [t for t in timestamps if now - t < 60]
+        
+        if len(timestamps) >= 20:
+            return JSONResponse(
+                status_code=429,
+                content={"detail": "Too many requests. Please wait before running analysis again."}
+            )
+        
+        timestamps.append(now)
+        analyze_rate_limits[ip] = timestamps
+        
+    response = await call_next(request)
+    return response
 
 # Constants
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache")
@@ -320,6 +357,24 @@ def export_yaml(
     """
     Returns valid Chaos Mesh YAML configuration for the given scenario parameters.
     """
+    import re
+    # Validate finding_id format (e.g. F1, F2)
+    if not re.match(r"^F[0-9]+$", finding_id):
+        raise HTTPException(status_code=400, detail="Invalid finding_id format. Must be like F1, F2.")
+        
+    # Validate target_node format (alphanumeric, hyphens, underscores, max 64 characters)
+    if not re.match(r"^[a-zA-Z0-9_-]+$", target_node) or len(target_node) > 64:
+        raise HTTPException(status_code=400, detail="Invalid target_node format. Must be alphanumeric with hyphens/underscores, max 64 characters.")
+        
+    # Validate scenario_type against allowed scenarios
+    allowed_scenarios = {"latency_adversary", "retry_storm", "data_integrity", "pod_failure", "http_abort"}
+    if scenario_type.lower() not in {s.lower() for s in allowed_scenarios}:
+        raise HTTPException(status_code=400, detail=f"Invalid scenario_type. Allowed types: {list(allowed_scenarios)}")
+        
+    # Validate magnitude ranges
+    if not (0.0 <= magnitude <= 100.0):
+        raise HTTPException(status_code=400, detail="Invalid magnitude value. Must be between 0.0 and 100.0.")
+
     try:
         yaml_str = render_chaos_mesh_yaml(
             scenario_type=scenario_type,
