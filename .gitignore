@@ -67,8 +67,8 @@ artifacts_link
 
 # Implementation plans & planning files
 *Implementation_Plan*
+ASCENT_FRONTEND_REDESIGN.md
 implementation_plan.md
 walkthrough.md
 task.md
-
-
+backend/cache/llm_responses/

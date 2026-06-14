@@ -3,6 +3,7 @@ import json
 import logging
 import warnings
 import httpx
+import time
 from typing import Type, Any, Dict, Optional
 from pydantic import BaseModel, Field
 with warnings.catch_warnings():
@@ -10,6 +11,7 @@ with warnings.catch_warnings():
     import google.generativeai as genai
 from dotenv import load_dotenv
 from openai import OpenAI
+from backend.agents.llm_cache import get_cached, set_cached
 
 load_dotenv()
 
@@ -42,6 +44,12 @@ class BaseAgent:
             logger.warning("GEMINI_API_KEY not set.")
             return None
         
+        cached = get_cached("gemini-2.5-flash", prompt)
+        if cached is not None:
+            print(f"[{self.name}] Cache hit — skipping Gemini API call")
+            self._last_call_was_cached = True
+            return cached
+
         try:
             model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content(
@@ -49,9 +57,13 @@ class BaseAgent:
                 generation_config={"response_mime_type": "application/json"}
             )
             text = response.text.strip()
-            return json.loads(text)
+            result = json.loads(text)
+            set_cached("gemini-2.5-flash", prompt, result)
+            self._last_call_was_cached = False
+            return result
         except Exception as e:
             logger.warning(f"Gemini call failed for {self.name}: {e}")
+            self._last_call_was_cached = False
             return None
 
     def call_groq(self, prompt: str) -> Optional[Dict[str, Any]]:
@@ -62,6 +74,12 @@ class BaseAgent:
         if not groq_api_key:
             logger.warning("GROQ_API_KEY not set.")
             return None
+
+        cached = get_cached("llama-3.3-70b-versatile", prompt)
+        if cached is not None:
+            print(f"[{self.name}] Cache hit — skipping Groq API call")
+            self._last_call_was_cached = True
+            return cached
 
         try:
             client = OpenAI(
@@ -74,15 +92,21 @@ class BaseAgent:
                 response_format={"type": "json_object"}
             )
             content = response.choices[0].message.content.strip()
-            return json.loads(content)
+            result = json.loads(content)
+            set_cached("llama-3.3-70b-versatile", prompt, result)
+            self._last_call_was_cached = False
+            return result
         except Exception as e:
             logger.warning(f"Groq call failed for {self.name}: {e}")
+            self._last_call_was_cached = False
             return None
 
     def execute(self, prompt: str, blueprint_dict: Dict[str, Any], response_schema: Type[BaseModel], *args, **kwargs) -> BaseModel:
         """
         Executes the agent logic with retries and fallbacks.
         """
+        self._last_call_was_cached = False
+
         # Step 1: Call Gemini (Attempt 1)
         parsed = self.call_gemini(prompt)
         if parsed is not None:
@@ -91,6 +115,8 @@ class BaseAgent:
                 parsed["provider"] = "gemini"
                 validated = response_schema(**parsed)
                 print(f"[{self.name}] Success using provider: gemini")
+                if not getattr(self, '_last_call_was_cached', False):
+                    time.sleep(1)
                 return validated
             except Exception as e:
                 logger.warning(f"[{self.name}] Gemini Attempt 1 validation failed: {e}")
@@ -104,6 +130,8 @@ class BaseAgent:
                 parsed["provider"] = "gemini"
                 validated = response_schema(**parsed)
                 print(f"[{self.name}] Success on Gemini retry using provider: gemini")
+                if not getattr(self, '_last_call_was_cached', False):
+                    time.sleep(1)
                 return validated
             except Exception as e:
                 logger.warning(f"[{self.name}] Gemini retry validation failed: {e}")
@@ -117,6 +145,8 @@ class BaseAgent:
                 parsed["provider"] = "groq"
                 validated = response_schema(**parsed)
                 print(f"[{self.name}] Success using provider: groq")
+                if not getattr(self, '_last_call_was_cached', False):
+                    time.sleep(1)
                 return validated
             except Exception as e:
                 logger.warning(f"[{self.name}] Groq validation failed: {e}")
@@ -128,4 +158,5 @@ class BaseAgent:
         fallback_dict["used_fallback"] = True
         fallback_dict["provider"] = "deterministic"
         print(f"[{self.name}] Success using provider: deterministic")
+        # No delay needed for deterministic fallback
         return response_schema(**fallback_dict)
