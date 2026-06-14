@@ -1,6 +1,6 @@
-from typing import List, Dict, Any, Optional
+﻿from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
-from backend.agents.base import AgentResponse
+from agents.base import AgentResponse
 
 # 1. Topology schemas
 class TopologyNodeAnnotation(BaseModel):

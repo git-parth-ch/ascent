@@ -1,4 +1,4 @@
-import os
+﻿import os
 import re
 import json
 import hashlib
@@ -10,11 +10,11 @@ from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
 
-from backend.models.blueprint import SystemBlueprint, Node, VALID_TRAFFIC_PROFILES
-from backend.models.report import CascadeAnalyzerResponse, CascadeFinding
-from backend.pipeline.langgraph_flow import run_ace_pipeline
-from backend.security.patch_validator import validate_patch
-from backend.export.yaml_renderer import render_chaos_mesh_yaml
+from models.blueprint import SystemBlueprint, Node, VALID_TRAFFIC_PROFILES
+from models.report import CascadeAnalyzerResponse, CascadeFinding
+from pipeline.langgraph_flow import run_ace_pipeline
+from security.patch_validator import validate_patch
+from export.yaml_renderer import render_chaos_mesh_yaml
 
 # Setup logger
 logging.basicConfig(level=logging.INFO)
@@ -165,7 +165,7 @@ def get_samples():
             })
     return samples
 
-# FIX 1: Whitelist of valid sample names — prevents path traversal via os.path.join
+# FIX 1: Whitelist of valid sample names â€” prevents path traversal via os.path.join
 ALLOWED_SAMPLES = {"ecommerce", "ridesharing", "banking"}
 
 @app.get("/samples/{name}")

@@ -1,8 +1,8 @@
-import os
+﻿import os
 import json
-from backend.models.blueprint import SystemBlueprint
-from backend.pipeline.langgraph_flow import run_ace_pipeline
-from backend.main import generate_agent_logs
+from models.blueprint import SystemBlueprint
+from pipeline.langgraph_flow import run_ace_pipeline
+from main import generate_agent_logs
 
 def main():
     samples_dir = os.path.join(os.path.dirname(__file__), "samples")

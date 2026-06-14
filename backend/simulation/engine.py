@@ -1,10 +1,10 @@
-import random
+﻿import random
 from typing import List, Dict, Any, Tuple, Set
-from backend.models.blueprint import SystemBlueprint, Node, Edge
-from backend.simulation.circuit_breaker import CircuitBreaker
-from backend.simulation.traffic_profiles import get_traffic_for_tick
-from backend.simulation.perturbation import Perturbation, PerturbationType
-from backend.simulation.cascade import CascadeEvent
+from models.blueprint import SystemBlueprint, Node, Edge
+from simulation.circuit_breaker import CircuitBreaker
+from simulation.traffic_profiles import get_traffic_for_tick
+from simulation.perturbation import Perturbation, PerturbationType
+from simulation.cascade import CascadeEvent
 
 class SimulationEngine:
     def __init__(self, blueprint: SystemBlueprint, random_seed: int = 42):

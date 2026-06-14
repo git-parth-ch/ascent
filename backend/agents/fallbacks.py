@@ -1,4 +1,4 @@
-"""
+﻿"""
 Standalone deterministic fallback functions for every Ascent agent.
 These are called when both Gemini and Groq fail, and must return the exact
 same Pydantic schema as the corresponding real agent's run() method.
@@ -6,7 +6,7 @@ same Pydantic schema as the corresponding real agent's run() method.
 from typing import Dict, Any, List, Optional
 import networkx as nx
 
-from backend.models.report import (
+from models.report import (
     OrchestratorStep,
     OrchestratorResponse,
     LatencyPerturbationDetails,
@@ -54,7 +54,7 @@ def orchestrator_fallback(blueprint_dict: Dict[str, Any]) -> OrchestratorRespons
     if not nodes_sorted:
         return OrchestratorResponse(
             test_plan=[],
-            adaptive_rule="No nodes available — cannot plan tests.",
+            adaptive_rule="No nodes available â€” cannot plan tests.",
             used_fallback=True,
             provider="deterministic"
         )

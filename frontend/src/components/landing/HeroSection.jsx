@@ -15,7 +15,7 @@ export default function HeroSection() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Light overlay — low opacity so bg.png stays bright and visible */}
+      {/* Light overlay */}
       <div
         className="absolute inset-0"
         style={{ backgroundColor: 'var(--color-bg)', opacity: 0.52 }}
@@ -34,8 +34,8 @@ export default function HeroSection() {
         }}
       />
 
-      <div className="relative max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="relative max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 
           {/* ── Left: text ─────────────────────────────────────────────── */}
           <div className="space-y-6">
@@ -85,11 +85,11 @@ export default function HeroSection() {
           {/* ── Right: embedded hero video ──────────────────────────────── */}
           <div className="flex justify-center lg:justify-end">
             <div
-              className="w-full max-w-2xl rounded-2xl overflow-hidden"
+              className="w-full rounded-2xl overflow-hidden"
               style={{
+                aspectRatio: '16 / 9',
                 boxShadow: '0 8px 48px rgba(26,18,8,0.22), 0 2px 12px rgba(26,18,8,0.12)',
                 border: '1px solid rgba(232,82,26,0.25)',
-                aspectRatio: '16 / 9',
               }}
             >
               <iframe
@@ -99,6 +99,14 @@ export default function HeroSection() {
                 style={{ border: 'none', display: 'block' }}
                 allow="autoplay"
                 loading="eager"
+                onLoad={e => {
+                  try {
+                    const win = e.target.contentWindow;
+                    const orig = win.performance.now.bind(win.performance);
+                    const t0 = orig();
+                    win.performance.now = () => t0 + (orig() - t0) * 1.25;
+                  } catch (_) {}
+                }}
               />
             </div>
           </div>

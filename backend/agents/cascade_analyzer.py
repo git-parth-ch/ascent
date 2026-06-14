@@ -1,13 +1,13 @@
-import json
+﻿import json
 import logging
 from typing import Dict, Any, List, Type
 from pydantic import BaseModel, Field
 import networkx as nx
 
-from backend.agents.base import BaseAgent, AgentResponse
-from backend.models.blueprint import SystemBlueprint
-from backend.models.report import BlueprintPatch, CascadeFinding, CascadeAnalyzerResponse
-from backend.security.sanitizer import sanitize_blueprint_for_llm
+from agents.base import BaseAgent, AgentResponse
+from models.blueprint import SystemBlueprint
+from models.report import BlueprintPatch, CascadeFinding, CascadeAnalyzerResponse
+from security.sanitizer import sanitize_blueprint_for_llm
 
 logger = logging.getLogger("ascent.agents.cascade_analyzer")
 
@@ -235,7 +235,7 @@ class CascadeAnalyzerAgent(BaseAgent):
             else:
                 current["impact"] = round(current["initial_impact"], 4)
 
-        # Resilience Score — adaptive normalization
+        # Resilience Score â€” adaptive normalization
         # The 1300 multiplier is retained for per-finding math calibration, but the
         # final deduction is clamped so any architecture with 2+ findings scores 35-70.
         raw_total_impact = sum(f["impact"] for f in raw_findings)
@@ -247,7 +247,7 @@ class CascadeAnalyzerAgent(BaseAgent):
                 deduction = max(deduction, 30)       # score never above 70 for multi-finding archs
             resilience_score = max(0, round(100 - deduction))
         else:
-            resilience_score = 85  # no findings → high score
+            resilience_score = 85  # no findings â†’ high score
 
         # Confidence = 100 - 15*(any_fallback_used) - 10*(scenarios < 3) - 5*(tick_limit_hit) - 5*(steady_traffic_only)
         scenarios_count = len(raw_findings)

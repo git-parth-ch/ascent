@@ -1,6 +1,6 @@
-import networkx as nx
+﻿import networkx as nx
 from typing import Any, Dict, List
-from backend.models.blueprint import SystemBlueprint
+from models.blueprint import SystemBlueprint
 
 def sanitize_blueprint_for_llm(blueprint: SystemBlueprint) -> Dict[str, Any]:
     """

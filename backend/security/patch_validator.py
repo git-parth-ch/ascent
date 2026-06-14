@@ -1,5 +1,5 @@
-from typing import Dict, Any, Tuple
-from backend.models.blueprint import Node
+﻿from typing import Dict, Any, Tuple
+from models.blueprint import Node
 
 def validate_patch(node_id: str, patch: Dict[str, Any], original_node: Node) -> Tuple[bool, str]:
     """

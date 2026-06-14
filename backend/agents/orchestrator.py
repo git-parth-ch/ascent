@@ -1,12 +1,12 @@
-import json
+﻿import json
 import logging
 from typing import Dict, Any, List, Type
 from pydantic import BaseModel, Field
 import networkx as nx
 
-from backend.agents.base import BaseAgent, AgentResponse
-from backend.models.blueprint import SystemBlueprint
-from backend.models.report import TopologyResponse, OrchestratorResponse, OrchestratorStep
+from agents.base import BaseAgent, AgentResponse
+from models.blueprint import SystemBlueprint
+from models.report import TopologyResponse, OrchestratorResponse, OrchestratorStep
 
 logger = logging.getLogger("ascent.agents.orchestrator")
 

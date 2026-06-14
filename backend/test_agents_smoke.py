@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 from dotenv import load_dotenv
 
@@ -7,13 +7,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 load_dotenv()
 
-from backend.models.blueprint import SystemBlueprint
-from backend.agents.topology import TopologyAgent
-from backend.agents.orchestrator import OrchestratorAgent
-from backend.agents.latency_adversary import LatencyAdversaryAgent
-from backend.agents.retry_storm import RetryStormAgent
-from backend.agents.data_integrity import DataIntegrityAgent
-from backend.agents.cascade_analyzer import CascadeAnalyzerAgent
+from models.blueprint import SystemBlueprint
+from agents.topology import TopologyAgent
+from agents.orchestrator import OrchestratorAgent
+from agents.latency_adversary import LatencyAdversaryAgent
+from agents.retry_storm import RetryStormAgent
+from agents.data_integrity import DataIntegrityAgent
+from agents.cascade_analyzer import CascadeAnalyzerAgent
 
 def run_smoke_tests():
     print("=== STARTING AGENT SMOKE TESTS ===")

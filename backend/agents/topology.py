@@ -1,13 +1,13 @@
-import json
+﻿import json
 import logging
 from typing import Dict, Any, List, Type
 import networkx as nx
 from pydantic import BaseModel, Field
 
-from backend.agents.base import BaseAgent, AgentResponse
-from backend.models.blueprint import SystemBlueprint
-from backend.models.report import TopologyResponse, TopologyNodeAnnotation
-from backend.security.sanitizer import sanitize_blueprint_for_llm
+from agents.base import BaseAgent, AgentResponse
+from models.blueprint import SystemBlueprint
+from models.report import TopologyResponse, TopologyNodeAnnotation
+from security.sanitizer import sanitize_blueprint_for_llm
 
 logger = logging.getLogger("ascent.agents.topology")
 

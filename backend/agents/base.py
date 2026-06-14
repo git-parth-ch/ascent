@@ -1,4 +1,4 @@
-import os
+﻿import os
 import json
 import logging
 import warnings
@@ -11,7 +11,7 @@ with warnings.catch_warnings():
     import google.generativeai as genai
 from dotenv import load_dotenv
 from openai import OpenAI
-from backend.agents.llm_cache import get_cached, set_cached
+from agents.llm_cache import get_cached, set_cached
 
 load_dotenv()
 
@@ -46,7 +46,7 @@ class BaseAgent:
         
         cached = get_cached("gemini-2.5-flash", prompt)
         if cached is not None:
-            print(f"[{self.name}] Cache hit — skipping Gemini API call")
+            print(f"[{self.name}] Cache hit â€” skipping Gemini API call")
             self._last_call_was_cached = True
             return cached
 
@@ -77,7 +77,7 @@ class BaseAgent:
 
         cached = get_cached("llama-3.3-70b-versatile", prompt)
         if cached is not None:
-            print(f"[{self.name}] Cache hit — skipping Groq API call")
+            print(f"[{self.name}] Cache hit â€” skipping Groq API call")
             self._last_call_was_cached = True
             return cached
 
