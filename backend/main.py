@@ -137,6 +137,10 @@ class ApplyFixRequest(BaseModel):
 
 # Endpoints
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 @app.get("/samples")
 def get_samples():
     """

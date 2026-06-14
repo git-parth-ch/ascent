@@ -102,7 +102,7 @@ export default function HowItWorksPage() {
             <RevealWrapper key={step.num} delay={0}>
               <div className="grid grid-cols-[80px_1fr] gap-8">
                 <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-white border-2 border-ascent-border shadow-card flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-ascent-card border-2 border-ascent-border shadow-card flex items-center justify-center">
                     <span className="text-sm font-mono font-bold text-ascent-orange">{step.num}</span>
                   </div>
                   {i < steps.length - 1 && <div className="flex-1 w-px border-l-2 border-dashed border-ascent-border mt-4" />}
@@ -136,7 +136,8 @@ export default function HowItWorksPage() {
           </RevealWrapper>
 
           <RevealWrapper>
-            <div className="bg-ascent-dark rounded-xl2 p-8 text-white font-mono mb-8">
+            <div className="rounded-xl2 p-8 text-white font-mono mb-8"
+              style={{ backgroundColor: '#1A1208', border: '1px solid #2D2419', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}>
               <p className="text-ascent-amber text-sm mb-2">// Resilience score formula</p>
               <p className="text-white text-base">
                 score = max(0, round(100 − Σ(<span className="text-ascent-orange">severity</span> × <span className="text-ascent-amber">blast_radius</span> × <span className="text-[#FDE68A]">likelihood</span>) × 1300))
@@ -150,7 +151,7 @@ export default function HowItWorksPage() {
           </RevealWrapper>
 
           <RevealWrapper>
-            <div className="bg-white rounded-xl2 border border-ascent-border shadow-card overflow-hidden">
+            <div className="bg-ascent-card rounded-xl2 border border-ascent-border shadow-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-ascent-bg-alt">
                   <tr>
@@ -161,7 +162,7 @@ export default function HowItWorksPage() {
                 </thead>
                 <tbody>
                   {likelihoodTable.map((row, i) => (
-                    <tr key={row.rule} className="border-t border-ascent-border" style={{ background: i % 2 === 0 ? '#fff' : '#FAF7F2' }}>
+                    <tr key={row.rule} className="border-t border-ascent-border" style={{ background: i % 2 === 0 ? 'var(--color-card)' : 'var(--color-bg)' }}>
                       <td className="px-5 py-3 font-mono text-xs text-ascent-dark">{row.rule}</td>
                       <td className="px-5 py-3 text-center font-mono font-bold text-ascent-orange">{row.score}</td>
                       <td className="px-5 py-3 text-xs text-ascent-mid">{row.desc}</td>
@@ -175,7 +176,10 @@ export default function HowItWorksPage() {
           <RevealWrapper className="mt-10 text-center">
             <button
               onClick={() => navigate('/dashboard')}
-              className="bg-ascent-orange text-white rounded-full px-8 py-3.5 font-semibold shadow-cta hover:bg-[#C94115] hover:-translate-y-px transition-all"
+              className="text-white rounded-full px-8 py-3.5 font-semibold hover:-translate-y-px transition-all"
+              style={{ backgroundColor: '#E8521A', boxShadow: '0 4px 20px rgba(232,82,26,0.32)' }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = '#C94115'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = '#E8521A'}
             >
               Run Analysis on Your Architecture →
             </button>

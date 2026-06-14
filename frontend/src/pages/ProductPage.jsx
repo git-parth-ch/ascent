@@ -2,14 +2,15 @@ import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import SectionBadge from '../components/shared/SectionBadge';
 import RevealWrapper from '../components/shared/RevealWrapper';
+import { Lock, Map, Target, Zap, RefreshCw, BarChart2 } from 'lucide-react';
 
 const agents = [
-  { name: 'Input Sanitizer',    icon: '🔒', llmRole: 'None — fully deterministic',                          detRole: 'Strips freeform text, enforces schema' },
-  { name: 'Topology Agent',     icon: '🗺',  llmRole: 'Explains centrality scores in plain English',          detRole: 'Builds NetworkX graph, scores nodes, detects 9 anti-patterns' },
-  { name: 'Orchestrator Agent', icon: '🎯', llmRole: 'Narrates test selection rationale',                    detRole: 'Ranks scenarios by priority score, schedules adversaries' },
-  { name: 'Latency Adversary',  icon: '⚡', llmRole: 'Summarizes latency spike impact',                      detRole: 'Injects latency per node, runs 100-tick simulation' },
-  { name: 'Retry Adversary',    icon: '🔄', llmRole: 'Explains amplification factor',                        detRole: 'Models retry storms, calculates 27×/64× amplification' },
-  { name: 'Cascade Analyzer',   icon: '📊', llmRole: 'Writes remediation text for each finding',             detRole: 'Computes score formula, validates patches, builds cascade tree' },
+  { name: 'Input Sanitizer',    Icon: Lock,     llmRole: 'None — fully deterministic',                         detRole: 'Strips freeform text, enforces schema' },
+  { name: 'Topology Agent',     Icon: Map,      llmRole: 'Explains centrality scores in plain English',         detRole: 'Builds NetworkX graph, scores nodes, detects 9 anti-patterns' },
+  { name: 'Orchestrator Agent', Icon: Target,   llmRole: 'Narrates test selection rationale',                   detRole: 'Ranks scenarios by priority score, schedules adversaries' },
+  { name: 'Latency Adversary',  Icon: Zap,      llmRole: 'Summarizes latency spike impact',                     detRole: 'Injects latency per node, runs 100-tick simulation' },
+  { name: 'Retry Adversary',    Icon: RefreshCw,llmRole: 'Explains amplification factor',                       detRole: 'Models retry storms, calculates 27×/64× amplification' },
+  { name: 'Cascade Analyzer',   Icon: BarChart2, llmRole: 'Writes remediation text for each finding',           detRole: 'Computes score formula, validates patches, builds cascade tree' },
 ];
 
 const securityPillars = [
@@ -72,28 +73,34 @@ export default function ProductPage() {
           </RevealWrapper>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {agents.map((agent, i) => (
-              <RevealWrapper key={agent.name} delay={i * 60}>
-                <div className="bg-white rounded-xl2 p-5 shadow-card border border-ascent-border hover:-translate-y-0.5 transition-transform duration-200">
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">{agent.icon}</span>
-                    <div className="flex-1">
-                      <h3 className="font-display font-bold text-ascent-dark mb-2">{agent.name}</h3>
-                      <div className="space-y-1.5 text-xs">
-                        <div>
-                          <span className="font-semibold text-ascent-orange">LLM role: </span>
-                          <span className="text-ascent-mid">{agent.llmRole}</span>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-ascent-dark">Deterministic role: </span>
-                          <span className="text-ascent-mid">{agent.detRole}</span>
+            {agents.map((agent, i) => {
+              const Icon = agent.Icon;
+              return (
+                <RevealWrapper key={agent.name} delay={i * 60}>
+                  <div className="bg-ascent-card rounded-xl2 p-5 shadow-card border border-ascent-border hover:-translate-y-0.5 transition-transform duration-200">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: '#E8521A1A', border: '1px solid #E8521A44' }}>
+                        <Icon className="w-4 h-4 text-ascent-orange" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-display font-bold text-ascent-dark mb-2">{agent.name}</h3>
+                        <div className="space-y-1.5 text-xs">
+                          <div>
+                            <span className="font-semibold text-ascent-orange">LLM role: </span>
+                            <span className="text-ascent-mid">{agent.llmRole}</span>
+                          </div>
+                          <div>
+                            <span className="font-semibold text-ascent-dark">Deterministic role: </span>
+                            <span className="text-ascent-mid">{agent.detRole}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </RevealWrapper>
-            ))}
+                </RevealWrapper>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -112,9 +119,10 @@ export default function ProductPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {securityPillars.map((p, i) => (
               <RevealWrapper key={p.title} delay={i * 80}>
-                <div className="bg-ascent-dark rounded-xl2 p-5 shadow-card flex flex-col gap-3 h-full">
+                <div className="rounded-xl2 p-5 flex flex-col gap-3 h-full"
+                  style={{ backgroundColor: '#1A1208', border: '1px solid #2D2419', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}>
                   <h3 className="font-display font-bold text-white">{p.title}</h3>
-                  <pre className="text-[11px] font-mono text-[#A89880] whitespace-pre-wrap leading-relaxed overflow-auto">{p.code}</pre>
+                  <pre className="text-[11px] font-mono whitespace-pre-wrap leading-relaxed overflow-auto" style={{ color: '#C4B49A' }}>{p.code}</pre>
                 </div>
               </RevealWrapper>
             ))}

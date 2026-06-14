@@ -125,13 +125,13 @@ export default function CustomNode({ data }) {
 
       {/* Below-Node Text Label */}
       <div className="text-[10px] font-semibold text-ascent-mid mt-2 text-center whitespace-nowrap font-mono max-w-[130px] truncate flex items-center justify-center gap-1">
-        {isPatched && <span>🛡️</span>}
+        {isPatched && <Shield className="w-3 h-3 text-green-600 shrink-0" />}
         <span>{label}</span>
       </div>
 
       {/* Inspect Popover Tooltip */}
       {isHovered && (
-        <div className="absolute bottom-full mb-3 bg-white border border-ascent-border p-3 rounded-xl shadow-card z-50 text-[10px] w-52 font-mono text-ascent-mid pointer-events-none flex flex-col gap-1.5">
+        <div className="absolute bottom-full mb-3 bg-ascent-card border border-ascent-border p-3 rounded-xl shadow-card z-50 text-[10px] w-52 font-mono text-ascent-mid pointer-events-none flex flex-col gap-1.5">
           <div className="border-b border-ascent-border pb-1 flex justify-between items-center">
             <span className="font-bold text-ascent-dark uppercase">{label}</span>
             <span className="text-[9px] bg-ascent-bg px-1 py-0.5 rounded text-ascent-muted uppercase border border-ascent-border">{type}</span>

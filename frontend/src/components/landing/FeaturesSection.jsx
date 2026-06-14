@@ -63,7 +63,7 @@ export default function FeaturesSection() {
           {cards.map((card, i) => (
             <RevealWrapper key={card.label} delay={i * 80}>
               <div
-                className="bg-white rounded-xl2 p-6 shadow-card border border-ascent-border flex flex-col h-full hover:-translate-y-1 transition-transform duration-200"
+                className="bg-ascent-card rounded-xl2 p-6 shadow-card border border-ascent-border flex flex-col h-full hover:-translate-y-1 transition-transform duration-200"
                 style={{ borderTopWidth: '4px', borderTopColor: card.borderColor }}
               >
                 <p className="text-[10px] font-mono font-bold tracking-widest uppercase mb-2" style={{ color: card.labelColor }}>

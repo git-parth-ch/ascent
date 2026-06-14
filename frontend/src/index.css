@@ -2,21 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Light-mode CSS tokens ─────────────────────────────────────────────── */
+:root {
+  --color-bg:      #FAF7F2;
+  --color-bg-alt:  #F2EDE4;
+  --color-card:    #FFFFFF;
+  --color-dark:    #1A1208;
+  --color-mid:     #5C4A32;
+  --color-muted:   #A89880;
+  --color-border:  #E8DDD0;
+}
+
+/* ── Dark-mode CSS tokens (class strategy) ─────────────────────────────── */
+html.dark {
+  --color-bg:      #0F0B08;
+  --color-bg-alt:  #161009;
+  --color-card:    #1F1510;
+  --color-dark:    #EDE7DD;
+  --color-mid:     #9A9284;
+  --color-muted:   #5C5249;
+  --color-border:  #2D2419;
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
 body {
   margin: 0;
-  background-color: #FAF7F2;
-  color: #1A1208;
+  background-color: var(--color-bg);
+  color: var(--color-dark);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 h1, h2, h3, h4 {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Scroll animation */
+/* ── Scroll-reveal animation ────────────────────────────────────────────── */
 .reveal {
   opacity: 0;
   transform: translateY(20px);
@@ -30,36 +54,36 @@ h1, h2, h3, h4 {
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 
-/* Warm scrollbar */
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #F2EDE4; }
-::-webkit-scrollbar-thumb { background: #E8DDD0; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #A89880; }
+::-webkit-scrollbar-track { background: var(--color-bg-alt); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
 
-/* React Flow — warm light background */
-.react-flow__renderer { background-color: #F2EDE4 !important; }
+/* ── React Flow ─────────────────────────────────────────────────────────── */
+.react-flow__renderer { background-color: var(--color-bg-alt) !important; }
 .react-flow__node { border-radius: 12px !important; font-family: 'Inter', sans-serif !important; }
 .react-flow__handle {
   width: 8px !important; height: 8px !important;
   background: #E8521A !important;
-  border: 2px solid #FAF7F2 !important;
+  border: 2px solid var(--color-bg) !important;
 }
 .react-flow__controls {
-  background: #FFFFFF !important;
-  border: 1px solid #E8DDD0 !important;
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-border) !important;
   border-radius: 8px !important;
   box-shadow: 0 1px 3px rgba(26,18,8,0.06) !important;
 }
 .react-flow__controls-button {
-  background: #FFFFFF !important;
-  color: #1A1208 !important;
-  border-bottom: 1px solid #E8DDD0 !important;
+  background: var(--color-card) !important;
+  color: var(--color-dark) !important;
+  border-bottom: 1px solid var(--color-border) !important;
   fill: currentColor !important;
 }
-.react-flow__controls-button:hover { background: #FAF7F2 !important; }
+.react-flow__controls-button:hover { background: var(--color-bg-alt) !important; }
 .react-flow__attribution { display: none !important; }
 
-/* Keyframe animations */
+/* ── Keyframe animations ────────────────────────────────────────────────── */
 @keyframes borderPulse {
   0%, 100% { border-color: rgba(220,38,38,0.4); box-shadow: 0 0 0 0 rgba(220,38,38,0.2); }
   50%       { border-color: rgba(220,38,38,1);   box-shadow: 0 0 12px 3px rgba(220,38,38,0.5); }
@@ -67,14 +91,14 @@ h1, h2, h3, h4 {
 .animate-border-pulse { animation: borderPulse 2s infinite ease-in-out; }
 
 @keyframes targetPulse {
-  0%, 100% { border-color: rgba(220,38,38,0.8); box-shadow: 0 0 0 0 rgba(220,38,38,0.4); background-color: rgba(220,38,38,0.1); }
-  50%       { border-color: rgba(239,68,68,1);   box-shadow: 0 0 25px 8px rgba(239,68,68,0.7); background-color: rgba(220,38,38,0.3); }
+  0%, 100% { border-color: rgba(220,38,38,0.8); box-shadow: 0 0 0 0 rgba(220,38,38,0.4); }
+  50%       { border-color: rgba(239,68,68,1);   box-shadow: 0 0 25px 8px rgba(239,68,68,0.7); }
 }
 .animate-target-pulse { animation: targetPulse 0.5s infinite ease-in-out; }
 
 @keyframes bgPulse {
-  0%, 100% { background-color: #F2EDE4; }
-  50%       { background-color: #FAF7F2; }
+  0%, 100% { background-color: var(--color-bg-alt); }
+  50%       { background-color: var(--color-bg); }
 }
 .animate-bg-pulse { animation: bgPulse 2.5s infinite ease-in-out !important; }
 
@@ -110,3 +134,13 @@ h1, h2, h3, h4 {
   to   { opacity: 1; transform: translateX(0); }
 }
 .animate-log-line { animation: typewriterLine 0.3s ease-out forwards; }
+
+/* ── Background image helper ────────────────────────────────────────────── */
+.bg-texture {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ── Accent range input ─────────────────────────────────────────────────── */
+input[type=range]::-webkit-slider-thumb { accent-color: #E8521A; }

@@ -1,117 +1,108 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SectionBadge from '../shared/SectionBadge';
-
-const LOG_LINES = [
-  { icon: '✓', color: '#16A34A', label: 'Topology Agent', detail: '14 nodes scored' },
-  { icon: '✓', color: '#16A34A', label: 'Orchestrator', detail: '3 scenarios planned' },
-  { icon: '⟳', color: '#F2A65A', label: 'Latency Adversary', detail: 'Attacking payment-service...' },
-];
-
-function AnimatedLog() {
-  const [visibleLines, setVisibleLines] = useState(0);
-
-  useEffect(() => {
-    if (visibleLines >= LOG_LINES.length) return;
-    const t = setTimeout(() => setVisibleLines(v => v + 1), 600);
-    return () => clearTimeout(t);
-  }, [visibleLines]);
-
-  return (
-    <div
-      className="rounded-xl2 p-6 w-full max-w-sm shadow-2xl border border-[#2A1F10]"
-      style={{ background: '#1A1208', fontFamily: '"JetBrains Mono", monospace' }}
-    >
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-2.5 h-2.5 rounded-full bg-[#DC2626]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#16A34A]" />
-        <span className="text-[10px] text-[#5C4A32] ml-2 uppercase tracking-widest">ascent agent log</span>
-      </div>
-
-      <div className="space-y-2.5 min-h-[80px]">
-        {LOG_LINES.slice(0, visibleLines).map((line, i) => (
-          <div key={i} className="flex items-center gap-3 animate-log-line text-[13px]">
-            <span style={{ color: line.color }} className="w-4 text-center shrink-0">{line.icon}</span>
-            <span className="text-[#F2EDE4] font-semibold w-36 truncate">{line.label}</span>
-            <span className="text-[#A89880] truncate">{line.detail}</span>
-          </div>
-        ))}
-        {visibleLines < LOG_LINES.length && (
-          <span className="inline-block w-2 h-4 bg-ascent-orange animate-blink" />
-        )}
-      </div>
-
-      <div className="mt-5 pt-4 border-t border-[#2A1F10]">
-        <p className="text-[10px] uppercase tracking-widest text-[#5C4A32] mb-1">Resilience Score</p>
-        <p className="text-3xl font-bold" style={{ color: '#E8521A', fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
-          52 <span className="text-base text-[#5C4A32]">/ 100</span>
-        </p>
-        <p className="text-[11px] text-[#A89880] mt-1">Confidence: 78%</p>
-      </div>
-    </div>
-  );
-}
+import bgImg from '../../assets/bg.png';
 
 export default function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative overflow-hidden pt-36 pb-20 px-6">
-      {/* Orange blob */}
+    <section
+      className="relative overflow-hidden pt-36 pb-20 px-6"
+      style={{
+        backgroundImage: `url(${bgImg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      {/* Light overlay — low opacity so bg.png stays bright and visible */}
+      <div
+        className="absolute inset-0"
+        style={{ backgroundColor: 'var(--color-bg)', opacity: 0.52 }}
+      />
+
+      {/* Orange glow accent */}
       <div
         className="absolute pointer-events-none"
         style={{
-          right: '-100px', top: '-100px',
-          width: '500px', height: '500px',
+          right: '-60px', top: '-80px',
+          width: '480px', height: '480px',
           background: 'radial-gradient(circle, #E8521A 0%, #F2A65A 40%, transparent 70%)',
-          opacity: 0.15,
+          opacity: 0.10,
           borderRadius: '50%',
-          filter: 'blur(60px)',
+          filter: 'blur(70px)',
         }}
       />
 
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left content */}
+      <div className="relative max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+          {/* ── Left: text ─────────────────────────────────────────────── */}
           <div className="space-y-6">
             <SectionBadge>Autonomous Chaos Engineering</SectionBadge>
 
             <h1
-              className="font-display font-extrabold text-ascent-dark leading-[1.05]"
-              style={{ fontSize: 'clamp(48px, 6vw, 80px)' }}
+              className="font-display font-extrabold leading-[1.05]"
+              style={{
+                fontSize: 'clamp(38px, 5vw, 70px)',
+                color: 'var(--color-dark)',
+                textShadow: '0 1px 8px rgba(250,247,242,0.6)',
+              }}
             >
               The Resilience Engine for Every Architecture
             </h1>
 
-            <p className="text-xl text-ascent-mid font-medium">
-              Analyze • Simulate • Remediate
+            <p className="text-xl font-semibold" style={{ color: 'var(--color-mid)' }}>
+              Analyze &nbsp;•&nbsp; Simulate &nbsp;•&nbsp; Remediate
             </p>
 
-            <p className="text-sm text-ascent-muted">
-              3 agent scenarios &nbsp;•&nbsp; 9 anti-patterns detected &nbsp;•&nbsp; 100-tick simulation &nbsp;•&nbsp; 0 live infra needed
+            <p className="text-sm" style={{ color: 'var(--color-mid)' }}>
+              3 agent scenarios &nbsp;·&nbsp; 9 anti-patterns detected &nbsp;·&nbsp; 100-tick simulation &nbsp;·&nbsp; 0 live infra needed
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="border border-ascent-dark text-ascent-dark rounded-full px-7 py-3 text-sm font-semibold hover:bg-ascent-dark hover:text-white transition-all"
+                className="rounded-full px-7 py-3 text-sm font-semibold transition-all font-body border"
+                style={{ borderColor: 'var(--color-dark)', color: 'var(--color-dark)', backgroundColor: 'transparent' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-dark)'; e.currentTarget.style.color = 'var(--color-bg)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--color-dark)'; }}
               >
                 Run Analysis →
               </button>
               <button
                 onClick={() => navigate('/how-it-works')}
-                className="bg-ascent-orange text-white rounded-full px-7 py-3 text-sm font-semibold shadow-cta hover:bg-[#C94115] hover:-translate-y-px transition-all"
+                className="rounded-full px-7 py-3 text-sm font-semibold transition-all font-body text-white"
+                style={{ backgroundColor: '#E8521A', boxShadow: '0 4px 20px rgba(232,82,26,0.35)' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#C94115'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#E8521A'}
               >
                 See How It Works
               </button>
             </div>
           </div>
 
-          {/* Right: animated log card */}
+          {/* ── Right: embedded hero video ──────────────────────────────── */}
           <div className="flex justify-center lg:justify-end">
-            <AnimatedLog />
+            <div
+              className="w-full max-w-2xl rounded-2xl overflow-hidden"
+              style={{
+                boxShadow: '0 8px 48px rgba(26,18,8,0.22), 0 2px 12px rgba(26,18,8,0.12)',
+                border: '1px solid rgba(232,82,26,0.25)',
+                aspectRatio: '16 / 9',
+              }}
+            >
+              <iframe
+                src="/hero-video.html?embed=1"
+                title="Ascent Hero Demo"
+                className="w-full h-full"
+                style={{ border: 'none', display: 'block' }}
+                allow="autoplay"
+                loading="eager"
+              />
+            </div>
           </div>
+
         </div>
       </div>
     </section>

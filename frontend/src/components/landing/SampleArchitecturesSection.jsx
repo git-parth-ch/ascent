@@ -55,7 +55,7 @@ export default function SampleArchitecturesSection() {
           {architectures.map((arch, i) => (
             <RevealWrapper key={arch.name} delay={i * 80}>
               <div
-                className="bg-white rounded-xl2 shadow-card border border-ascent-border flex flex-col h-full hover:-translate-y-1 transition-transform duration-200 overflow-hidden"
+                className="bg-ascent-card rounded-xl2 shadow-card border border-ascent-border flex flex-col h-full hover:-translate-y-1 transition-transform duration-200 overflow-hidden"
               >
                 <div className="h-1" style={{ background: arch.topColor }} />
                 <div className="p-6 flex flex-col flex-1">
@@ -85,7 +85,10 @@ export default function SampleArchitecturesSection() {
                     </div>
                     <button
                       onClick={() => navigate('/dashboard', { state: { sample: arch.sample } })}
-                      className="text-sm font-semibold text-white bg-ascent-orange rounded-full px-5 py-2 shadow-cta hover:bg-[#C94115] hover:-translate-y-px transition-all"
+                      className="text-sm font-semibold text-white rounded-full px-5 py-2 hover:-translate-y-px transition-all"
+                      style={{ backgroundColor: '#E8521A', boxShadow: '0 4px 16px rgba(232,82,26,0.32)' }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = '#C94115'}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = '#E8521A'}
                     >
                       Analyze Now →
                     </button>

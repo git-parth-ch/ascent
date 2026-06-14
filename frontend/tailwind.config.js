@@ -4,25 +4,29 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        'ascent-bg':      '#FAF7F2',
-        'ascent-bg-alt':  '#F2EDE4',
+        // CSS-variable-driven tokens — auto-switch in dark mode
+        'ascent-bg':      'var(--color-bg)',
+        'ascent-bg-alt':  'var(--color-bg-alt)',
+        'ascent-card':    'var(--color-card)',
+        'ascent-dark':    'var(--color-dark)',
+        'ascent-mid':     'var(--color-mid)',
+        'ascent-muted':   'var(--color-muted)',
+        'ascent-border':  'var(--color-border)',
+        // Fixed accent colours — same in both modes
         'ascent-orange':  '#E8521A',
         'ascent-amber':   '#F2A65A',
         'ascent-yellow':  '#FDE68A',
-        'ascent-dark':    '#1A1208',
-        'ascent-mid':     '#5C4A32',
-        'ascent-muted':   '#A89880',
-        'ascent-border':  '#E8DDD0',
-        // Legacy dark tokens kept so dashboard components still compile
+        // Legacy aliases kept so unchanged dashboard code still compiles
         dark: {
-          bg:     '#FAF7F2',
-          card:   '#FFFFFF',
-          border: '#E8DDD0',
-          text:   '#1A1208',
-          muted:  '#A89880',
+          bg:     'var(--color-bg)',
+          card:   'var(--color-card)',
+          border: 'var(--color-border)',
+          text:   'var(--color-dark)',
+          muted:  'var(--color-muted)',
         },
         brand: {
           primary:   '#E8521A',
@@ -44,8 +48,13 @@ export default {
       },
       boxShadow: {
         'card': '0 1px 3px rgba(26,18,8,0.06), 0 4px 16px rgba(26,18,8,0.04)',
+        'card-dark': '0 1px 3px rgba(0,0,0,0.30), 0 4px 16px rgba(0,0,0,0.20)',
         'nav':  '0 2px 20px rgba(26,18,8,0.08)',
+        'nav-dark': '0 2px 20px rgba(0,0,0,0.40)',
         'cta':  '0 4px 24px rgba(232,82,26,0.30)',
+      },
+      backgroundImage: {
+        'ascent-bg-texture': "url('/src/assets/bg.png')",
       },
     },
   },

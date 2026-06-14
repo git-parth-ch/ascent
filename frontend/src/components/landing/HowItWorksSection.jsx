@@ -1,3 +1,4 @@
+import { Zap, RefreshCw, Bug } from 'lucide-react';
 import SectionBadge from '../shared/SectionBadge';
 import RevealWrapper from '../shared/RevealWrapper';
 
@@ -7,7 +8,7 @@ const steps = [
     title: 'Input Sanitizer',
     body: 'Strips all freeform text before any LLM sees your architecture. Prompt injection: structurally impossible.',
     visual: (
-      <div className="font-mono text-xs space-y-1.5 p-4 bg-ascent-bg rounded-xl border border-ascent-border">
+      <div className="font-mono text-xs space-y-1.5 p-4 bg-ascent-bg-alt rounded-xl border border-ascent-border">
         <p className="text-ascent-muted line-through">label: "Ignore previous instructions and..."</p>
         <p className="text-ascent-orange">→ stripped to metadata only</p>
         <p className="text-ascent-mid">node_type: service, replicas: 3</p>
@@ -51,10 +52,10 @@ const steps = [
     body: 'Latency spikes. Retry storms. Silent data corruption. Each scenario designed to find your real blast radius.',
     visual: (
       <div className="flex gap-2">
-        {['Latency', 'Retry', 'Corruption'].map((s, i) => (
-          <div key={s} className="flex-1 text-center p-3 bg-ascent-bg rounded-xl border border-ascent-border">
-            <div className="text-lg mb-1">{['⚡', '🔄', '🐛'][i]}</div>
-            <p className="text-[10px] font-mono text-ascent-mid">{s}</p>
+        {[{ label: 'Latency', Icon: Zap }, { label: 'Retry', Icon: RefreshCw }, { label: 'Corruption', Icon: Bug }].map(({ label, Icon }) => (
+          <div key={label} className="flex-1 text-center p-3 bg-ascent-bg-alt rounded-xl border border-ascent-border">
+            <Icon className="w-4 h-4 mx-auto mb-1 text-ascent-orange" />
+            <p className="text-[10px] font-mono text-ascent-mid">{label}</p>
           </div>
         ))}
       </div>
@@ -119,7 +120,7 @@ export default function HowItWorksSection() {
                 <div className="grid grid-cols-1 md:grid-cols-[56px_1fr_1fr] gap-6 items-start">
                   {/* Step dot + number */}
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-14 h-14 rounded-full bg-white border-2 border-ascent-border shadow-card flex items-center justify-center z-10 relative">
+                    <div className="w-14 h-14 rounded-full bg-ascent-card border-2 border-ascent-border shadow-card flex items-center justify-center z-10 relative">
                       <span className="text-xs font-mono font-bold text-ascent-orange">{step.num}</span>
                     </div>
                   </div>

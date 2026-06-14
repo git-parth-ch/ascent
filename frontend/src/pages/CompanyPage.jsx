@@ -4,7 +4,9 @@ import SectionBadge from '../components/shared/SectionBadge';
 import RevealWrapper from '../components/shared/RevealWrapper';
 
 const team = [
-  { name: 'Parth', role: 'Full-stack & Agent Architecture' },
+  { name: 'Parth',    role: 'Full-stack & Agent Architecture' },
+  { name: 'Ayush',    role: 'Frontend / UI & UX' },
+  { name: 'Shivansh', role: 'Product Research' },
 ];
 
 export default function CompanyPage() {
@@ -33,7 +35,8 @@ export default function CompanyPage() {
 
           {/* The core claim */}
           <RevealWrapper>
-            <div className="bg-ascent-dark text-white rounded-xl2 p-8 space-y-3">
+            <div className="text-white rounded-xl2 p-8 space-y-3"
+              style={{ backgroundColor: '#1A1208', border: '1px solid #2D2419', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}>
               <p className="text-xs font-mono text-ascent-amber uppercase tracking-widest">The insight</p>
               <p className="text-2xl font-display font-bold leading-snug">
                 "Existing chaos tools execute.<br />They don't reason."
@@ -58,7 +61,7 @@ export default function CompanyPage() {
           <div className="flex flex-wrap justify-center gap-5">
             {team.map((member, i) => (
               <RevealWrapper key={member.name} delay={i * 80}>
-                <div className="bg-white rounded-xl2 p-6 shadow-card border border-ascent-border w-56 text-center hover:-translate-y-1 transition-transform duration-200">
+                <div className="bg-ascent-card rounded-xl2 p-6 shadow-card border border-ascent-border w-56 text-center hover:-translate-y-1 transition-transform duration-200">
                   <div className="w-14 h-14 rounded-full bg-ascent-bg border-2 border-ascent-border mx-auto mb-3 flex items-center justify-center">
                     <span className="text-xl font-display font-bold text-ascent-orange">{member.name[0]}</span>
                   </div>
@@ -81,7 +84,7 @@ export default function CompanyPage() {
           </RevealWrapper>
 
           <RevealWrapper>
-            <div className="bg-white rounded-xl2 p-8 shadow-card border border-ascent-border space-y-4">
+            <div className="bg-ascent-card rounded-xl2 p-8 shadow-card border border-ascent-border space-y-4">
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-ascent-dark">Name</label>
                 <input
@@ -105,12 +108,17 @@ export default function CompanyPage() {
                   placeholder="Tell us what you're building..."
                 />
               </div>
-              <button className="w-full bg-ascent-orange text-white rounded-full py-3 font-semibold shadow-cta hover:bg-[#C94115] transition-all">
+              <button
+                className="w-full rounded-full py-3 font-semibold text-white transition-all font-body"
+                style={{
+                  backgroundColor: '#E8521A',
+                  boxShadow: '0 4px 24px rgba(232,82,26,0.30)',
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#C94115'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#E8521A'}
+              >
                 Send Message
               </button>
-              <p className="text-xs text-center text-ascent-muted">
-                Or email directly: <a href="mailto:oompathania@gmail.com" className="text-ascent-orange hover:underline">oompathania@gmail.com</a>
-              </p>
             </div>
           </RevealWrapper>
         </div>

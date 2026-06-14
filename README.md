@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="frontend/src/assets/ascent-wordmark.svg" alt="Ascent" width="280" />
+</p>
+
 # Ascent
 
 Autonomous pre-deployment resilience analysis for distributed architectures, powered by an agent swarm.

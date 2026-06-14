@@ -42,7 +42,7 @@ export default function ProblemSection() {
             const Icon = card.icon;
             return (
               <RevealWrapper key={card.title} delay={i * 80}>
-                <div className="bg-white rounded-xl2 p-6 shadow-card border border-ascent-border h-full flex flex-col hover:-translate-y-1 transition-transform duration-200">
+                <div className="bg-ascent-card rounded-xl2 p-6 shadow-card border border-ascent-border h-full flex flex-col hover:-translate-y-1 transition-transform duration-200">
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-2.5 bg-ascent-bg rounded-xl border border-ascent-border group-hover:scale-110 transition-transform">
                       <Icon className="w-5 h-5 text-ascent-orange" />

@@ -52,9 +52,9 @@ export default function WhyAscentSection() {
                   <tr
                     key={row.capability}
                     className="border-t border-ascent-border transition-colors"
-                    style={{ background: i % 2 === 0 ? '#FFFFFF' : '#FAF7F2' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#FDE68A33'}
-                    onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? '#FFFFFF' : '#FAF7F2'}
+                    style={{ background: i % 2 === 0 ? 'var(--color-card)' : 'var(--color-bg)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#FDE68A22'}
+                    onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? 'var(--color-card)' : 'var(--color-bg)'}
                   >
                     <td className="px-5 py-3.5 text-ascent-dark font-medium">{row.capability}</td>
                     <td className="px-4 py-3.5 text-center" style={{ background: 'rgba(232,82,26,0.04)' }}>

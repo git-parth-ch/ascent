@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Terminal } from 'lucide-react';
+import { Bot, Terminal, CheckCircle, Loader2, AlertTriangle, XCircle, Circle } from 'lucide-react';
 
 const AgentLogsPanel = ({ reportData, blueprint, reanalyzing }) => {
   const [visibleLogs, setVisibleLogs] = useState([]);
@@ -30,7 +30,7 @@ const AgentLogsPanel = ({ reportData, blueprint, reanalyzing }) => {
 
   if (reanalyzing) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] text-ascent-mid font-mono text-sm bg-white border border-ascent-border rounded-xl2 shadow-card">
+      <div className="flex flex-col items-center justify-center h-[400px] text-ascent-mid font-mono text-sm bg-ascent-card border border-ascent-border rounded-xl2 shadow-card">
         <Bot className="w-10 h-10 mb-3 text-ascent-orange animate-spin" />
         <div className="text-xs uppercase tracking-widest font-bold text-ascent-orange animate-pulse">Re-analyzing...</div>
         <div className="text-[10px] text-ascent-muted mt-2">Validating patch &amp; re-running simulation engine</div>
@@ -40,7 +40,7 @@ const AgentLogsPanel = ({ reportData, blueprint, reanalyzing }) => {
 
   if (!reportData) {
     return (
-      <div className="flex flex-col items-center justify-center h-[400px] text-ascent-muted font-mono text-sm bg-white border border-ascent-border rounded-xl2 shadow-card">
+      <div className="flex flex-col items-center justify-center h-[400px] text-ascent-muted font-mono text-sm bg-ascent-card border border-ascent-border rounded-xl2 shadow-card">
         <Terminal className="w-10 h-10 mb-3 text-ascent-border animate-pulse" />
         <div>Awaiting execution telemetry...</div>
       </div>
@@ -55,23 +55,23 @@ const AgentLogsPanel = ({ reportData, blueprint, reanalyzing }) => {
 
     switch (status) {
       case 'running':
-        icon = <span className="text-ascent-orange animate-spin font-sans">⟳</span>;
+        icon = <Loader2 className="w-3.5 h-3.5 text-ascent-orange animate-spin" />;
         msgClass = "text-ascent-muted italic";
         break;
       case 'complete':
-        icon = <span className="text-green-600 font-bold">✓</span>;
+        icon = <CheckCircle className="w-3.5 h-3.5 text-green-600" />;
         break;
       case 'fallback':
-        icon = <span className="text-amber-500 font-bold">⚠</span>;
+        icon = <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />;
         fallbackText = " (deterministic fallback)";
         msgClass = "text-amber-600";
         break;
       case 'error':
-        icon = <span className="text-red-500 font-bold">✗</span>;
+        icon = <XCircle className="w-3.5 h-3.5 text-red-500" />;
         msgClass = "text-red-600";
         break;
       default:
-        icon = <span className="text-ascent-muted">•</span>;
+        icon = <Circle className="w-3.5 h-3.5 text-ascent-muted" />;
     }
 
     let providerBadge = null;
@@ -98,7 +98,7 @@ const AgentLogsPanel = ({ reportData, blueprint, reanalyzing }) => {
   };
 
   return (
-    <div className="bg-white border border-ascent-border rounded-xl2 overflow-hidden flex flex-col shadow-card">
+    <div className="bg-ascent-card border border-ascent-border rounded-xl2 overflow-hidden flex flex-col shadow-card">
       <div className="px-4 py-3 border-b border-ascent-border flex items-center gap-2 bg-ascent-bg">
         <Terminal className="w-4 h-4 text-ascent-orange" />
         <span className="text-xs font-bold uppercase tracking-wider text-ascent-mid font-mono">Ascent Analysis Log</span>
