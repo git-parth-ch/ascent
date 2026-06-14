@@ -1,0 +1,14 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-failure-{{ target_node }}
+  namespace: chaos-mesh
+spec:
+  action: pod-failure
+  mode: all
+  selector:
+    namespaces:
+      - default
+    labelSelectors:
+      app: "{{ target_node }}"
+  duration: "{{ (duration_ticks | int) * 10 }}s"

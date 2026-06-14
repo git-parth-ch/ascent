@@ -1,0 +1,74 @@
+# Dependency directories
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+frontend/dist/
+frontend/dist-ssr/
+
+# Python environment and caches
+__pycache__/
+backend/__pycache__/
+backend/agents/__pycache__/
+backend/models/__pycache__/
+backend/pipeline/__pycache__/
+backend/security/__pycache__/
+backend/simulation/__pycache__/
+backend/export/__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+
+# Local configuration and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# Application cache
+backend/cache/
+backend/cache/*.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary test scripts/directories
+scratch/
+check_samples.py
+test_fixes.py
+prime_cache.py
+artifacts_link
+
+# Implementation plans & planning files
+*Implementation_Plan*
+implementation_plan.md
+walkthrough.md
+task.md
+
+

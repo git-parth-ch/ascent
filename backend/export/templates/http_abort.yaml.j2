@@ -1,0 +1,17 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: HTTPChaos
+metadata:
+  name: http-abort-{{ target_node }}
+  namespace: chaos-mesh
+spec:
+  action: abort
+  mode: all
+  target: Request
+  port: 80
+  path: "*"
+  selector:
+    namespaces:
+      - default
+    labelSelectors:
+      app: "{{ target_node }}"
+  duration: "{{ (duration_ticks | int) * 10 }}s"
