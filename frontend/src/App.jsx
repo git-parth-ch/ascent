@@ -9,12 +9,26 @@ import AgentLogsPanel from './components/AgentLogsPanel';
 import ResilienceScore from './components/ResilienceScore';
 import CascadeTree from './components/CascadeTree';
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+
+async function apiFetch(url, options = {}) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail || `Server error: ${res.status}`);
+  }
+  const contentType = res.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return res.json();
+  }
+  return res.text();
+}
 
 function App() {
   // Sample architectures
   const [samples, setSamples] = useState([]);
-  const [selectedSample, setSelectedSample] = useState('ecommerce');
+  const [selectedSample, setSelectedSample] = useState(null);
+  const [trafficProfile, setTrafficProfile] = useState('steady');
   
   // Current active blueprint and report
   const [blueprint, setBlueprint] = useState(null);
@@ -55,13 +69,9 @@ function App() {
 
   // 1. Fetch samples list on mount
   useEffect(() => {
-    fetch(`${API_BASE}/samples`)
-      .then(res => res.json())
+    apiFetch(`${API_BASE}/samples`)
       .then(data => {
         setSamples(data);
-        if (data.length > 0) {
-          loadBlueprint(data[0].name);
-        }
       })
       .catch(err => {
         console.error("Failed to fetch samples:", err);
@@ -94,8 +104,7 @@ function App() {
       });
     }, 450);
 
-    fetch(`${API_BASE}/samples/${name}`)
-      .then(res => res.json())
+    apiFetch(`${API_BASE}/samples/${name}`)
       .then(bpData => {
         setBlueprint(bpData);
         setSelectedSample(name);
@@ -104,13 +113,12 @@ function App() {
         setActiveScenarioIdx(0);
         
         // Load cached analysis initially
-        return fetch(`${API_BASE}/analyze`, {
+        return apiFetch(`${API_BASE}/analyze`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ blueprint: bpData, force_live: false })
+          body: JSON.stringify({ blueprint: bpData, force_live: false, traffic_profile: trafficProfile })
         });
       })
-      .then(res => res.json())
       .then(reportData => {
         setReport(reportData);
         clearInterval(stepInterval);
@@ -120,11 +128,12 @@ function App() {
         console.error("Error loading blueprint:", err);
         clearInterval(stepInterval);
         setLoading(false);
+        showToast(err.message || "Error loading blueprint.", "error");
       });
   };
 
-  // 3. Trigger live pipeline run
-  const runLiveAnalysis = () => {
+  // 3. Trigger analysis (cached or live)
+  const handleTriggerAnalysis = (forceLive = false) => {
     if (!blueprint) return;
     setLoading(true);
     setLoadingStep(0);
@@ -135,33 +144,83 @@ function App() {
         clearInterval(stepInterval);
         return prev;
       });
-    }, 600);
+    }, forceLive ? 600 : 300);
 
-    fetch(`${API_BASE}/analyze`, {
+    apiFetch(`${API_BASE}/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ blueprint, force_live: true })
+      body: JSON.stringify({ 
+        blueprint, 
+        force_live: forceLive,
+        traffic_profile: trafficProfile
+      })
     })
-      .then(res => res.json())
       .then(reportData => {
         setReport(reportData);
         setCurrentTick(0);
         setIsPlaying(false);
         clearInterval(stepInterval);
         setLoading(false);
-        showToast("Analysis complete. Resilience metrics updated!", "success");
+        showToast(
+          forceLive 
+            ? "Live analysis complete. Resilience metrics updated!" 
+            : "Analysis complete.", 
+          "success"
+        );
       })
       .catch(err => {
-        console.error("Live analysis failed:", err);
+        console.error("Analysis failed:", err);
         clearInterval(stepInterval);
         setLoading(false);
-        showToast("Live analysis failed. Using fallback simulation data.", "error");
+        showToast(err.message || "Analysis failed.", "error");
       });
   };
 
-  // 3b. Reset all simulation results and return to raw blueprint view
+  // 3a. Trigger analysis dynamically when traffic profile changes
+  const triggerAnalysisWithProfile = (profile) => {
+    if (!blueprint) return;
+    setLoading(true);
+    setLoadingStep(0);
+
+    const stepInterval = setInterval(() => {
+      setLoadingStep(prev => {
+        if (prev < LOADING_STEPS.length - 1) return prev + 1;
+        clearInterval(stepInterval);
+        return prev;
+      });
+    }, 300);
+
+    apiFetch(`${API_BASE}/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        blueprint, 
+        force_live: false,
+        traffic_profile: profile
+      })
+    })
+      .then(reportData => {
+        setReport(reportData);
+        setCurrentTick(0);
+        setIsPlaying(false);
+        clearInterval(stepInterval);
+        setLoading(false);
+        showToast(`Loaded cached analysis for ${profile} traffic.`, "success");
+      })
+      .catch(err => {
+        console.error("Analysis failed:", err);
+        clearInterval(stepInterval);
+        setLoading(false);
+        showToast(err.message || "Analysis failed.", "error");
+      });
+  };
+
+  // 3b. Reset — return to Architecture Selector landing page
   const handleReset = () => {
     setReport(null);
+    setBlueprint(null);
+    setSelectedSample(null);
+    setTrafficProfile('steady');
     setPatchedNodes([]);
     setFixedFindings([]);
     setFixedFindingIds([]);
@@ -170,7 +229,6 @@ function App() {
     setReanalyzing(false);
     setCurrentTick(0);
     setIsPlaying(false);
-    showToast("Simulation and findings reset successfully.", "success");
   };
 
   // 3c. Upload custom blueprint JSON
@@ -208,12 +266,11 @@ function App() {
           });
         }, 300);
 
-        fetch(`${API_BASE}/analyze`, {
+        apiFetch(`${API_BASE}/analyze`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ blueprint: customBlueprint, force_live: false })
+          body: JSON.stringify({ blueprint: customBlueprint, force_live: false, traffic_profile: trafficProfile })
         })
-          .then(res => res.json())
           .then(reportData => {
             setReport(reportData);
             clearInterval(stepInterval);
@@ -224,7 +281,7 @@ function App() {
             console.error("Custom analysis failed:", err);
             clearInterval(stepInterval);
             setLoading(false);
-            showToast("Analysis failed for custom blueprint.", "error");
+            showToast(err.message || "Analysis failed for custom blueprint.", "error");
           });
 
       } catch (err) {
@@ -269,7 +326,7 @@ function App() {
     // Show spinner & label "Validating..."
     setPatchingId(findingId);
 
-    fetch(`${API_BASE}/apply-fix`, {
+    apiFetch(`${API_BASE}/apply-fix`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -277,7 +334,6 @@ function App() {
         finding_id: findingId
       })
     })
-      .then(res => res.json())
       .then(resData => {
         if (!resData.valid) {
           // 4. If validator rejects: show a red error box below the button with the rejection reason.
@@ -307,15 +363,15 @@ function App() {
           setReanalyzing(true);
           setPatchingId(null); // clear button loading state
 
-          fetch(`${API_BASE}/analyze`, {
+          apiFetch(`${API_BASE}/analyze`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               blueprint: resData.patched_blueprint,
-              force_live: false
+              force_live: false,
+              traffic_profile: trafficProfile
             })
           })
-            .then(analyzeRes => analyzeRes.json())
             .then(newReportData => {
               setReport(newReportData);
               setReanalyzing(false);
@@ -324,13 +380,13 @@ function App() {
             .catch(err => {
               console.error("Re-analysis failed:", err);
               setReanalyzing(false);
-              showToast("Re-analysis failed.", "error");
+              showToast(err.message || "Re-analysis failed.", "error");
             });
         }
       })
       .catch(err => {
         console.error("Failed to apply patch:", err);
-        setPatchErrors(prev => ({ ...prev, [findingId]: "Network error trying to contact validation server." }));
+        setPatchErrors(prev => ({ ...prev, [findingId]: err.message || "Network error trying to contact validation server." }));
         setPatchingId(null);
       });
   };
@@ -343,8 +399,7 @@ function App() {
     // This is intentional — severity acts as a proxy for failure intensity.
     const magnitude = finding.severity * 100.0;
     
-    fetch(`${API_BASE}/export-yaml/${finding.finding_id}?scenario_type=${scenarioType}&target_node=${targetNode}&magnitude=${magnitude}`)
-      .then(res => res.text())
+    apiFetch(`${API_BASE}/export-yaml/${finding.finding_id}?scenario_type=${scenarioType}&target_node=${targetNode}&magnitude=${magnitude}`)
       .then(yamlText => {
         setYamlModalData({
           yaml: yamlText,
@@ -354,7 +409,7 @@ function App() {
       })
       .catch(err => {
         console.error("YAML export failed:", err);
-        showToast("Failed to render Chaos Mesh config.", "error");
+        showToast(err.message || "Failed to render Chaos Mesh config.", "error");
       });
   };
 
@@ -412,54 +467,75 @@ function App() {
           </div>
         </div>
 
-        {/* Architecture Selector */}
-        <div className="flex items-center gap-2">
-          {samples.map((sample) => (
+        {/* Navigation Header Controls */}
+        {blueprint && (
+          <div className="flex items-center gap-3">
+            {/* Active Architecture indicator */}
+            <div className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs font-mono text-slate-300">
+              Active: <span className="font-bold text-indigo-400 uppercase">{selectedSample || 'Custom'}</span>
+            </div>
+
+            {/* Traffic Profile Selector */}
+            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg">
+              <span className="text-[10px] font-mono text-slate-500 uppercase">Traffic:</span>
+              <select 
+                value={trafficProfile} 
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setTrafficProfile(val);
+                  triggerAnalysisWithProfile(val);
+                }}
+                className="bg-transparent text-xs text-slate-200 border-none outline-none cursor-pointer font-sans"
+              >
+                <option value="steady" className="bg-slate-950 text-slate-200">Steady Traffic</option>
+                <option value="burst" className="bg-slate-950 text-slate-200">Burst (+300 req spike)</option>
+                <option value="spike" className="bg-slate-950 text-slate-200">Spike (instant peak)</option>
+                <option value="diurnal" className="bg-slate-950 text-slate-200">Diurnal (day pattern)</option>
+              </select>
+            </div>
+
+            {/* Upload JSON */}
+            <label className="px-3 py-1.5 rounded-lg text-xs font-mono border bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200 cursor-pointer flex items-center gap-1.5 transition-all">
+              <Upload className="w-3.5 h-3.5" />
+              Upload JSON
+              <input 
+                type="file" 
+                accept=".json" 
+                onChange={handleUploadJson} 
+                className="hidden" 
+              />
+            </label>
+
+            {/* Run Analysis Buttons (FIX 7) */}
+            <div className="flex flex-col items-center">
+              <button
+                onClick={() => handleTriggerAnalysis(false)}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-lg shadow-indigo-950/50 transition-all justify-center"
+                disabled={loading}
+              >
+                <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                Run Analysis
+              </button>
+              <button
+                onClick={() => handleTriggerAnalysis(true)}
+                className="text-[10px] font-medium text-slate-400 hover:text-slate-200 transition-colors mt-0.5"
+                disabled={loading}
+              >
+                Force Live Re-Run ↺
+              </button>
+            </div>
+
+            {/* Reset Button */}
             <button
-              key={sample.name}
-              onClick={() => loadBlueprint(sample.name)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all duration-200 ${
-                selectedSample === sample.name
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-900/30'
-                  : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
-              }`}
+              onClick={handleReset}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center gap-1.5 transition-all"
+              disabled={loading}
             >
-              {sample.name.toUpperCase()} ({sample.node_count} nodes)
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset
             </button>
-          ))}
-
-          <label className="ml-2 px-3 py-1.5 rounded-lg text-xs font-mono border bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-205 cursor-pointer flex items-center gap-1.5 transition-all">
-            <Upload className="w-3.5 h-3.5" />
-            Upload JSON
-            <input 
-              type="file" 
-              accept=".json" 
-              onChange={handleUploadJson} 
-              className="hidden" 
-            />
-          </label>
-          
-          <button
-            onClick={runLiveAnalysis}
-            className="ml-4 px-4 py-1.5 rounded-lg text-xs font-bold bg-indigo-500 hover:bg-indigo-600 text-white flex items-center gap-2 shadow-lg shadow-indigo-950/50 transition-all"
-            disabled={loading}
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            Run Analysis
-          </button>
-
-          <button
-            onClick={handleReset}
-            className="ml-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-350 flex items-center gap-1.5 transition-all"
-            disabled={loading}
-            title="Reset simulation and findings"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            Reset
-          </button>
-
-
-        </div>
+          </div>
+        )}
       </header>
 
       {/* Loading Overlay */}
@@ -489,8 +565,77 @@ function App() {
         </div>
       )}
 
-      {/* Main Grid Layout */}
-      <main className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-6 p-6 overflow-y-auto xl:overflow-hidden">
+      {!report ? (
+        /* Architecture Selector View */
+        <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-5xl mx-auto w-full">
+          <div className="text-center space-y-3 mb-10">
+            <h2 className="text-3xl font-black tracking-tight text-white">Select System Architecture</h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto font-sans leading-relaxed">
+              Choose one of our production-modeled system architectures to run pre-deployment resilience analysis and identify cascading failures.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-8">
+            {samples.map((sample) => {
+              let description = "";
+              if (sample.name === "ecommerce") {
+                description = "Payment path, shared DB, missing DLQ";
+              } else if (sample.name === "ridesharing") {
+                description = "4-hop sync chain, fan-out explosion";
+              } else if (sample.name === "banking") {
+                description = "64× retry amplification, shared transaction DB";
+              }
+
+              return (
+                <div
+                  key={sample.name}
+                  onClick={() => loadBlueprint(sample.name)}
+                  className="bg-slate-900/40 hover:bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between h-48 group shadow-lg hover:shadow-indigo-950/10"
+                >
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-lg font-black uppercase text-slate-100 font-mono tracking-wide group-hover:text-indigo-400 transition-colors">
+                        {sample.name}
+                      </h3>
+                      <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                        {sample.node_count} nodes
+                      </span>
+                    </div>
+                    
+                    <p className="text-xs text-slate-400 leading-relaxed font-sans mt-2">
+                      {description}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+                    <span className="text-[10px] font-sans font-bold text-orange-400 bg-orange-950/40 border border-orange-900/60 px-2.5 py-1 rounded-full">
+                      {sample.weakness_count} known weaknesses
+                    </span>
+                    <span className="text-xs font-mono text-indigo-400 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                      Analyze →
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Upload custom blueprint */}
+          <div className="flex items-center gap-4 mt-4">
+            <label className="px-5 py-2.5 rounded-lg text-xs font-mono font-bold border bg-slate-900/60 text-slate-300 border-slate-800 hover:border-slate-700 hover:text-white cursor-pointer flex items-center gap-2 transition-all">
+              <Upload className="w-4 h-4" />
+              Upload Custom Blueprint JSON
+              <input 
+                type="file" 
+                accept=".json" 
+                onChange={handleUploadJson} 
+                className="hidden" 
+              />
+            </label>
+          </div>
+        </div>
+      ) : (
+        <main className="flex-1 grid grid-cols-1 xl:grid-cols-12 gap-6 p-6 overflow-y-auto xl:overflow-hidden">
         {/* Left Column - Score & Graph (8 cols) */}
         <div className="xl:col-span-8 flex flex-col gap-6">
           {/* Resilience Circular Gauge Summary */}
@@ -500,6 +645,7 @@ function App() {
                 score={report.resilience_score}
                 confidence={report.confidence}
                 summary={report.overall_summary}
+                findings={report.score_breakdown}
               />
             </div>
           )}
@@ -614,6 +760,40 @@ function App() {
                     </div>
 
                     <h4 className="text-xs font-bold text-slate-200 mb-1">{finding.title}</h4>
+
+                    {/* Telemetry fields */}
+                    <div className="mb-2.5 p-2 bg-slate-950/40 rounded-lg border border-slate-900 font-mono text-[10px] text-slate-350 space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-slate-500">Severity: </span>
+                          <span className="font-bold text-red-400">{(finding.severity * 100).toFixed(1)}%</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">Blast Radius: </span>
+                          <span className="font-bold text-orange-400">{(finding.blast_radius * 100).toFixed(1)}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Likelihood: </span>
+                        <span className="font-bold text-amber-400">{finding.likelihood.toFixed(2)}</span>
+                        <span className="text-slate-500 text-[9px] block leading-tight font-sans italic mt-0.5">
+                          ({finding.likelihood_breakdown})
+                        </span>
+                      </div>
+                      {finding.affected_nodes && finding.affected_nodes.length > 0 && (
+                        <div className="pt-1.5 border-t border-slate-900">
+                          <span className="text-slate-500 block mb-1">Affected Nodes:</span>
+                          <div className="flex flex-wrap gap-1 font-sans">
+                            {finding.affected_nodes.map(node => (
+                              <span key={node} className="px-1.5 py-0.5 bg-slate-900 border border-slate-800/80 text-slate-350 text-[9px] rounded font-mono">
+                                {node}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-3">
                       {finding.remediation_text}
                     </p>
@@ -692,6 +872,7 @@ function App() {
           </div>
         </div>
       </main>
+      )}
 
       {/* YAML modal preview */}
       {yamlModalData && (

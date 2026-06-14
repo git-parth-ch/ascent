@@ -95,6 +95,29 @@ const AgentLogsPanel = ({ reportData, blueprint, reanalyzing }) => {
         icon = <span className="text-slate-500">•</span>;
     }
 
+    let providerBadge = null;
+    if (line.provider) {
+      if (line.provider === "gemini") {
+        providerBadge = (
+          <span className="ml-2 px-1.5 py-0.5 text-[9px] font-bold rounded bg-blue-950/60 text-blue-400 border border-blue-900/50 inline-block align-middle leading-none">
+            Gemini
+          </span>
+        );
+      } else if (line.provider === "groq") {
+        providerBadge = (
+          <span className="ml-2 px-1.5 py-0.5 text-[9px] font-bold rounded bg-emerald-950/60 text-emerald-400 border border-emerald-900/50 inline-block align-middle leading-none">
+            Groq
+          </span>
+        );
+      } else if (line.provider === "deterministic") {
+        providerBadge = (
+          <span className="ml-2 px-1.5 py-0.5 text-[9px] font-bold rounded bg-slate-900 text-slate-400 border border-slate-800 inline-block align-middle leading-none">
+            Fallback
+          </span>
+        );
+      }
+    }
+
     return (
       <div
         key={idx}
@@ -105,6 +128,7 @@ const AgentLogsPanel = ({ reportData, blueprint, reanalyzing }) => {
         </div>
         <div className="leading-relaxed">
           <span className={agentClass}>{agent}</span>
+          {providerBadge}
           {status === 'fallback' && (
             <span className="text-amber-400 font-semibold">{fallbackText}</span>
           )}

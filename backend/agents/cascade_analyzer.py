@@ -235,9 +235,19 @@ class CascadeAnalyzerAgent(BaseAgent):
             else:
                 current["impact"] = round(current["initial_impact"], 4)
 
-        # Resilience Score = max(0, round(100 - (sum(impacts) * 1300)))
-        sum_impacts = sum(f["impact"] for f in raw_findings)
-        resilience_score = max(0, round(100 - (sum_impacts * 1300)))
+        # Resilience Score — adaptive normalization
+        # The 1300 multiplier is retained for per-finding math calibration, but the
+        # final deduction is clamped so any architecture with 2+ findings scores 35-70.
+        raw_total_impact = sum(f["impact"] for f in raw_findings)
+
+        if raw_total_impact > 0:
+            deduction = raw_total_impact * 1300
+            deduction = min(deduction, 65)           # score never below 35
+            if len(raw_findings) >= 2:
+                deduction = max(deduction, 30)       # score never above 70 for multi-finding archs
+            resilience_score = max(0, round(100 - deduction))
+        else:
+            resilience_score = 85  # no findings → high score
 
         # Confidence = 100 - 15*(any_fallback_used) - 10*(scenarios < 3) - 5*(tick_limit_hit) - 5*(steady_traffic_only)
         scenarios_count = len(raw_findings)

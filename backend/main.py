@@ -185,6 +185,7 @@ def get_sample(name: str):
 
 def generate_agent_logs(blueprint: SystemBlueprint, report_dict: Dict[str, Any]) -> List[Dict[str, Any]]:
     logs = []
+    main_provider = report_dict.get("provider", "gemini")
     
     # 1. Sanitizer
     logs.append({"agent": "Security Sanitizer", "status": "running", "message": "Sanitizing system blueprint, filtering potentially unsafe prompts..."})
@@ -193,38 +194,39 @@ def generate_agent_logs(blueprint: SystemBlueprint, report_dict: Dict[str, Any])
     # 2. Topology Agent
     logs.append({"agent": "Topology Agent", "status": "running", "message": "Calculating betweenness centrality and synchronicity graphs..."})
     sync_count = sum(1 for e in blueprint.edges if getattr(e, 'sync', False))
-    logs.append({"agent": "Topology Agent", "status": "complete", "message": f"Topology mapped: {len(blueprint.nodes)} nodes, {len(blueprint.edges)} edges (synchronous: {sync_count}). Mapped centralities."})
+    logs.append({"agent": "Topology Agent", "status": "complete", "provider": main_provider, "message": f"Topology mapped: {len(blueprint.nodes)} nodes, {len(blueprint.edges)} edges (synchronous: {sync_count}). Mapped centralities."})
     
     # 3. Orchestrator
     logs.append({"agent": "Orchestrator Agent", "status": "running", "message": "Planning optimal perturbation sequences based on node priority scores..."})
     if report_dict.get("used_fallback"):
-        logs.append({"agent": "Orchestrator Agent", "status": "fallback", "message": "Adaptive planning failed or timed out. Loaded deterministic fallback test schedule."})
+        logs.append({"agent": "Orchestrator Agent", "status": "fallback", "provider": "deterministic", "message": "Adaptive planning failed or timed out. Loaded deterministic fallback test schedule."})
     else:
-        logs.append({"agent": "Orchestrator Agent", "status": "complete", "message": f"Generated adaptive test plan with {len(report_dict.get('score_breakdown', []))} chaos scenarios."})
+        logs.append({"agent": "Orchestrator Agent", "status": "complete", "provider": main_provider, "message": f"Generated adaptive test plan with {len(report_dict.get('score_breakdown', []))} chaos scenarios."})
         
     # 4. Scenario adversaries
     for finding in report_dict.get("score_breakdown", []):
         scenario = finding.get("scenario", "")
         target_node = finding.get("patch_params", {}).get("node_id", "unknown")
+        finding_provider = "deterministic" if report_dict.get("used_fallback") else main_provider
         
         if "latency" in scenario:
             logs.append({"agent": "Latency Adversary Agent", "status": "running", "message": f"Simulating latency spike on target node '{target_node}'..."})
-            logs.append({"agent": "Latency Adversary Agent", "status": "complete", "message": f"Latency spike simulated. Upstream timeouts cascade. Blast radius: {finding.get('blast_radius', 0.5)*100:.1f}%. Impact: {finding.get('impact', 0.0)*100:.1f}%."})
+            logs.append({"agent": "Latency Adversary Agent", "status": "complete", "provider": finding_provider, "message": f"Latency spike simulated. Upstream timeouts cascade. Blast radius: {finding.get('blast_radius', 0.5)*100:.1f}%. Impact: {finding.get('impact', 0.0)*100:.1f}%."})
         elif "retry" in scenario:
             logs.append({"agent": "Retry Storm Agent", "status": "running", "message": f"Simulating retry storm amplification on '{target_node}'..."})
-            logs.append({"agent": "Retry Storm Agent", "status": "complete", "message": f"Amplification factor 9x detected upstream of {target_node} (3 retries x 3 retries). 847 effective requests hit the failing node."})
+            logs.append({"agent": "Retry Storm Agent", "status": "complete", "provider": finding_provider, "message": f"Amplification factor 9x detected upstream of {target_node} (3 retries x 3 retries). 847 effective requests hit the failing node."})
         elif "integrity" in scenario or "data" in scenario:
             logs.append({"agent": "Data Integrity Agent", "status": "running", "message": f"Simulating silent corruption on database node '{target_node}'..."})
-            logs.append({"agent": "Data Integrity Agent", "status": "complete", "message": f"Silent corruption propagated. Out-of-sync state detected upstream. Severity: {finding.get('severity', 0.5)*100:.1f}%."})
+            logs.append({"agent": "Data Integrity Agent", "status": "complete", "provider": finding_provider, "message": f"Silent corruption propagated. Out-of-sync state detected upstream. Severity: {finding.get('severity', 0.5)*100:.1f}%."})
         else:
             logs.append({"agent": "Chaos Adversary Agent", "status": "running", "message": f"Simulating chaos perturbation on target node '{target_node}'..."})
-            logs.append({"agent": "Chaos Adversary Agent", "status": "complete", "message": f"Simulation finished. Affected nodes: {', '.join(finding.get('affected_nodes', []))}."})
+            logs.append({"agent": "Chaos Adversary Agent", "status": "complete", "provider": finding_provider, "message": f"Simulation finished. Affected nodes: {', '.join(finding.get('affected_nodes', []))}."})
             
     logs.append({"agent": "Health Monitor Agent", "status": "error", "message": "Network jitter spike detected during simulation. Swarm self-recovered."})
 
     # 5. Cascade Analyzer
     logs.append({"agent": "Cascade Analyzer Agent", "status": "running", "message": "Aggregating scenario simulation logs and computing overall resilience..."})
-    logs.append({"agent": "Cascade Analyzer Agent", "status": "complete", "message": f"Analysis complete. Resilience Score: {report_dict.get('resilience_score')}/100. Confidence: {report_dict.get('confidence')}%."})
+    logs.append({"agent": "Cascade Analyzer Agent", "status": "complete", "provider": main_provider, "message": f"Analysis complete. Resilience Score: {report_dict.get('resilience_score')}/100. Confidence: {report_dict.get('confidence')}%."})
     
     return logs
 
