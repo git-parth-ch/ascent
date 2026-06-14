@@ -17,7 +17,11 @@ import lockupDark  from './assets/ascent-lockup-dark.svg';
 import bgImg       from './assets/bg.png';
 import { mockBlueprints, mockReports } from './assets/mockData';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+let rawApiBase = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+if (rawApiBase && !rawApiBase.startsWith('http://') && !rawApiBase.startsWith('https://')) {
+  rawApiBase = `https://${rawApiBase}`;
+}
+const API_BASE = rawApiBase;
 
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, options);
