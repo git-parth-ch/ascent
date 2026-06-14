@@ -1,164 +1,112 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  background-color: #FAF7F2;
+  color: #1A1208;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #080A10;
-  color: #E2E8F0;
   overflow-x: hidden;
 }
 
-/* Custom scrollbar for dark modern theme */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #0B0F19;
-}
-::-webkit-scrollbar-thumb {
-  background: #1F293D;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+h1, h2, h3, h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* React Flow custom styles to match dark mode */
-.react-flow__renderer {
-  background-color: #0B0F19 !important;
+/* Scroll animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
 }
 
-.react-flow__node {
-  border-radius: 12px !important;
-  font-family: 'Inter', sans-serif !important;
-}
+/* Warm scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F2EDE4; }
+::-webkit-scrollbar-thumb { background: #E8DDD0; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #A89880; }
 
+/* React Flow — warm light background */
+.react-flow__renderer { background-color: #F2EDE4 !important; }
+.react-flow__node { border-radius: 12px !important; font-family: 'Inter', sans-serif !important; }
 .react-flow__handle {
-  width: 8px !important;
-  height: 8px !important;
-  background: #6366F1 !important;
-  border: 2px solid #0B0F19 !important;
+  width: 8px !important; height: 8px !important;
+  background: #E8521A !important;
+  border: 2px solid #FAF7F2 !important;
 }
-
 .react-flow__controls {
-  background: #151B2C !important;
-  border: 1px solid #1F293D !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E8DDD0 !important;
   border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 1px 3px rgba(26,18,8,0.06) !important;
 }
-
 .react-flow__controls-button {
-  background: #151B2C !important;
-  color: #F3F4F6 !important;
-  border-bottom: 1px solid #1F293D !important;
+  background: #FFFFFF !important;
+  color: #1A1208 !important;
+  border-bottom: 1px solid #E8DDD0 !important;
   fill: currentColor !important;
 }
+.react-flow__controls-button:hover { background: #FAF7F2 !important; }
+.react-flow__attribution { display: none !important; }
 
-.react-flow__controls-button:hover {
-  background: #1F293D !important;
-}
-
-.react-flow__attribution {
-  display: none !important;
-}
-
-/* Custom keyframe animations for Ascent */
+/* Keyframe animations */
 @keyframes borderPulse {
-  0%, 100% {
-    border-color: rgba(239, 68, 68, 0.4);
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
-  }
-  50% {
-    border-color: rgba(239, 68, 68, 1);
-    box-shadow: 0 0 12px 3px rgba(239, 68, 68, 0.6);
-  }
+  0%, 100% { border-color: rgba(220,38,38,0.4); box-shadow: 0 0 0 0 rgba(220,38,38,0.2); }
+  50%       { border-color: rgba(220,38,38,1);   box-shadow: 0 0 12px 3px rgba(220,38,38,0.5); }
 }
-.animate-border-pulse {
-  animation: borderPulse 2s infinite ease-in-out;
-}
+.animate-border-pulse { animation: borderPulse 2s infinite ease-in-out; }
 
 @keyframes targetPulse {
-  0%, 100% {
-    border-color: rgba(220, 38, 38, 0.8);
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
-    background-color: rgba(220, 38, 38, 0.2);
-  }
-  50% {
-    border-color: rgba(239, 68, 68, 1);
-    box-shadow: 0 0 25px 8px rgba(239, 68, 68, 0.9);
-    background-color: rgba(220, 38, 38, 0.6);
-  }
+  0%, 100% { border-color: rgba(220,38,38,0.8); box-shadow: 0 0 0 0 rgba(220,38,38,0.4); background-color: rgba(220,38,38,0.1); }
+  50%       { border-color: rgba(239,68,68,1);   box-shadow: 0 0 25px 8px rgba(239,68,68,0.7); background-color: rgba(220,38,38,0.3); }
 }
-.animate-target-pulse {
-  animation: targetPulse 0.5s infinite ease-in-out;
-}
+.animate-target-pulse { animation: targetPulse 0.5s infinite ease-in-out; }
 
 @keyframes bgPulse {
-  0%, 100% {
-    background-color: #0b0f19;
-  }
-  50% {
-    background-color: #161026;
-  }
+  0%, 100% { background-color: #F2EDE4; }
+  50%       { background-color: #FAF7F2; }
 }
-.animate-bg-pulse {
-  animation: bgPulse 2.5s infinite ease-in-out !important;
-}
+.animate-bg-pulse { animation: bgPulse 2.5s infinite ease-in-out !important; }
 
-@keyframes dash {
-  to {
-    stroke-dashoffset: -20;
-  }
-}
-.animate-dash {
-  stroke-dasharray: 6;
-  animation: dash 1.2s linear infinite;
-}
+@keyframes dash { to { stroke-dashoffset: -20; } }
+.animate-dash { stroke-dasharray: 6; animation: dash 1.2s linear infinite; }
+
 @keyframes patchSuccess {
-  0% {
-    border-color: #EF4444;
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
-  }
-  100% {
-    border-color: #34D399;
-    box-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
-  }
+  0%   { border-color: #DC2626; box-shadow: 0 0 15px rgba(220,38,38,0.5); }
+  100% { border-color: #16A34A; box-shadow: 0 0 15px rgba(22,163,74,0.3); }
 }
-.animate-patch-success {
-  animation: patchSuccess 1s forwards ease-in-out;
-}
+.animate-patch-success { animation: patchSuccess 1s forwards ease-in-out; }
 
 @keyframes slideInLeft {
-  from {
-    transform: translateX(-10px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { transform: translateX(-10px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
 }
-.animate-slide-in-left {
-  animation: slideInLeft 0.2s ease-out forwards;
-}
+.animate-slide-in-left { animation: slideInLeft 0.2s ease-out forwards; }
 
 @keyframes blink {
-  0%, 100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 0; }
+  50%       { opacity: 1; }
 }
-.animate-blink {
-  animation: blink 1s step-end infinite;
+.animate-blink { animation: blink 1s step-end infinite; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+.animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+
+@keyframes typewriterLine {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-log-line { animation: typewriterLine 0.3s ease-out forwards; }

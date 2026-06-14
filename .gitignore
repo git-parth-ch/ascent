@@ -8,14 +8,7 @@ frontend/dist/
 frontend/dist-ssr/
 
 # Python environment and caches
-__pycache__/
-backend/__pycache__/
-backend/agents/__pycache__/
-backend/models/__pycache__/
-backend/pipeline/__pycache__/
-backend/security/__pycache__/
-backend/simulation/__pycache__/
-backend/export/__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 .venv/
@@ -34,12 +27,15 @@ htmlcov/
 .env.development.local
 .env.test.local
 .env.production.local
+frontend/.env
+frontend/.env.production
 *.pem
 *.key
 
 # Application cache
 backend/cache/
 backend/cache/*.json
+backend/cache/llm_responses/
 
 # Logs
 *.log
@@ -58,17 +54,18 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-# Temporary test scripts/directories
+# Temporary test / scratch scripts
 scratch/
 check_samples.py
 test_fixes.py
 prime_cache.py
+verify_simulation.py
+scratch_diagnose.py
 artifacts_link
 
-# Implementation plans & planning files
+# Planning and design docs (not part of deliverable)
 *Implementation_Plan*
 ASCENT_FRONTEND_REDESIGN.md
 implementation_plan.md
 walkthrough.md
 task.md
-backend/cache/llm_responses/

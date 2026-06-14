@@ -124,31 +124,31 @@ export default function CustomNode({ data }) {
       )}
 
       {/* Below-Node Text Label */}
-      <div className="text-[10px] font-semibold text-slate-350 mt-2 text-center whitespace-nowrap font-mono max-w-[130px] truncate flex items-center justify-center gap-1">
+      <div className="text-[10px] font-semibold text-ascent-mid mt-2 text-center whitespace-nowrap font-mono max-w-[130px] truncate flex items-center justify-center gap-1">
         {isPatched && <span>🛡️</span>}
         <span>{label}</span>
       </div>
 
       {/* Inspect Popover Tooltip */}
       {isHovered && (
-        <div className="absolute bottom-full mb-3 bg-slate-950/95 border border-slate-850 p-3 rounded-xl shadow-2xl z-50 text-[10px] w-52 font-mono text-slate-300 pointer-events-none flex flex-col gap-1.5 backdrop-blur-sm">
-          <div className="border-b border-slate-900 pb-1 flex justify-between items-center">
-            <span className="font-bold text-white uppercase">{label}</span>
-            <span className="text-[9px] bg-slate-900 px-1 py-0.5 rounded text-slate-400 uppercase">{type}</span>
+        <div className="absolute bottom-full mb-3 bg-white border border-ascent-border p-3 rounded-xl shadow-card z-50 text-[10px] w-52 font-mono text-ascent-mid pointer-events-none flex flex-col gap-1.5">
+          <div className="border-b border-ascent-border pb-1 flex justify-between items-center">
+            <span className="font-bold text-ascent-dark uppercase">{label}</span>
+            <span className="text-[9px] bg-ascent-bg px-1 py-0.5 rounded text-ascent-muted uppercase border border-ascent-border">{type}</span>
           </div>
-          <div>Status: <span className={`font-semibold uppercase ${status === 'source' ? 'text-red-400' : (status === 'degraded' ? 'text-amber-400' : 'text-emerald-400')}`}>{status === 'source' ? 'PERTURBED' : status}</span></div>
-          {failure_reason && <div className="text-red-400 text-[9px] bg-red-950/30 px-1 py-0.5 rounded">{failure_reason}</div>}
-          <div>Latency: <span className="text-white">{nominal_latency_ms}ms</span></div>
-          <div>Replicas: <span className="text-white">{replicas}</span></div>
-          <div>Circuit Breaker: <span className={circuit_breaker ? "text-emerald-400" : "text-slate-500"}>{circuit_breaker ? (circuit_breaker_state || "CLOSED") : "DISABLED"}</span></div>
-          {priority_score !== undefined && <div>Priority Score: <span className="text-indigo-400 font-bold">{(priority_score * 100).toFixed(1)}</span></div>}
-          {centrality !== undefined && <div>Centrality: <span className="text-indigo-300">{(centrality).toFixed(3)}</span></div>}
+          <div>Status: <span className={`font-semibold uppercase ${status === 'source' ? 'text-red-600' : (status === 'degraded' ? 'text-amber-600' : 'text-green-600')}`}>{status === 'source' ? 'PERTURBED' : status}</span></div>
+          {failure_reason && <div className="text-red-600 text-[9px] bg-red-50 px-1 py-0.5 rounded border border-red-200">{failure_reason}</div>}
+          <div>Latency: <span className="text-ascent-dark">{nominal_latency_ms}ms</span></div>
+          <div>Replicas: <span className="text-ascent-dark">{replicas}</span></div>
+          <div>Circuit Breaker: <span className={circuit_breaker ? "text-green-600" : "text-ascent-muted"}>{circuit_breaker ? (circuit_breaker_state || "CLOSED") : "DISABLED"}</span></div>
+          {priority_score !== undefined && <div>Priority Score: <span className="text-ascent-orange font-bold">{(priority_score * 100).toFixed(1)}</span></div>}
+          {centrality !== undefined && <div>Centrality: <span className="text-ascent-amber">{(centrality).toFixed(3)}</span></div>}
           {anti_patterns.length > 0 && (
-            <div className="border-t border-slate-900 pt-1.5">
-              <div className="text-red-400 font-bold mb-0.5">Anti-patterns:</div>
+            <div className="border-t border-ascent-border pt-1.5">
+              <div className="text-red-600 font-bold mb-0.5">Anti-patterns:</div>
               <div className="flex flex-col gap-0.5">
                 {anti_patterns.map((ap, i) => (
-                  <span key={i} className="text-[9px] bg-red-950/40 text-red-300 border border-red-900/30 rounded px-1 py-0.2 select-text">{ap}</span>
+                  <span key={i} className="text-[9px] bg-red-50 text-red-700 border border-red-200 rounded px-1 py-0.2 select-text">{ap}</span>
                 ))}
               </div>
             </div>

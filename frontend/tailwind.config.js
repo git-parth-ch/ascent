@@ -7,25 +7,46 @@ export default {
   theme: {
     extend: {
       colors: {
+        'ascent-bg':      '#FAF7F2',
+        'ascent-bg-alt':  '#F2EDE4',
+        'ascent-orange':  '#E8521A',
+        'ascent-amber':   '#F2A65A',
+        'ascent-yellow':  '#FDE68A',
+        'ascent-dark':    '#1A1208',
+        'ascent-mid':     '#5C4A32',
+        'ascent-muted':   '#A89880',
+        'ascent-border':  '#E8DDD0',
+        // Legacy dark tokens kept so dashboard components still compile
         dark: {
-          bg: "#0B0F19",
-          card: "#151B2C",
-          border: "#1F293D",
-          text: "#F3F4F6",
-          muted: "#9CA3AF"
+          bg:     '#FAF7F2',
+          card:   '#FFFFFF',
+          border: '#E8DDD0',
+          text:   '#1A1208',
+          muted:  '#A89880',
         },
         brand: {
-          primary: "#6366F1",
-          secondary: "#4F46E5",
-          danger: "#EF4444",
-          warning: "#F59E0B",
-          success: "#10B981"
-        }
+          primary:   '#E8521A',
+          secondary: '#F2A65A',
+          danger:    '#DC2626',
+          warning:   '#F59E0B',
+          success:   '#16A34A',
+        },
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"]
-      }
+        display: ['"Plus Jakarta Sans"', 'sans-serif'],
+        body:    ['Inter', 'sans-serif'],
+        sans:    ['Inter', 'sans-serif'],
+        mono:    ['"JetBrains Mono"', 'monospace'],
+      },
+      borderRadius: {
+        'xl2': '20px',
+        'xl3': '32px',
+      },
+      boxShadow: {
+        'card': '0 1px 3px rgba(26,18,8,0.06), 0 4px 16px rgba(26,18,8,0.04)',
+        'nav':  '0 2px 20px rgba(26,18,8,0.08)',
+        'cta':  '0 4px 24px rgba(232,82,26,0.30)',
+      },
     },
   },
   plugins: [],
