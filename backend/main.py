@@ -26,31 +26,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS for frontend integration
-cors_origins_env = os.environ.get("CORS_ALLOWED_ORIGINS")
-if cors_origins_env:
-    allowed_origins = [orig.strip() for orig in cors_origins_env.split(",") if orig.strip()]
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=allowed_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-else:
-    # Default: allow local dev + production Vercel frontend
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "http://127.0.0.1:5173",
-            "https://ascent-phi-teal.vercel.app",
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+# Enable CORS — open to all origins (stateless API, no auth cookies)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Simple in-memory IP rate limiter: max 20 requests per minute per IP on /analyze
 analyze_rate_limits = {}
