@@ -3,6 +3,7 @@ import { Shield, ShieldAlert, ShieldCheck, Activity } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Cell, LabelList } from 'recharts';
 
 const ScoreBreakdown = ({ findings }) => {
+  if (!Array.isArray(findings)) return null;
   const data = findings.map(f => ({ name: f.finding_id, impact: f.impact }));
   const maxImpact = Math.max(...data.map(d => d.impact), 0.1);
 

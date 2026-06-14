@@ -41,7 +41,7 @@ const TreeNode = ({ node, isRoot }) => {
 export default function CascadeTree({ cascadeEvents, currentTick }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!cascadeEvents || cascadeEvents.length === 0) {
+  if (!Array.isArray(cascadeEvents) || cascadeEvents.length === 0) {
     return (
       <div className="text-[10px] font-mono text-ascent-muted p-2 rounded border border-ascent-border">
         No cascade events recorded.
