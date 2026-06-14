@@ -1,0 +1,6 @@
+# Tell GitHub Linguist to exclude these from language stats
+# (files are kept in repo — just not counted toward language percentages)
+
+frontend/public/*.html           linguist-vendored
+frontend/src/assets/*.html       linguist-vendored
+frontend/public/*.html           linguist-documentation
