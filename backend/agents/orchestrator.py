@@ -54,9 +54,9 @@ class OrchestratorAgent(BaseAgent):
         for edge in blueprint.edges:
             G.add_edge(edge.from_node, edge.to_node, sync=edge.sync)
 
-        # 2. Select top K nodes where priority_score > 0.3, K = min(4, count)
+        # 2. Select top K nodes where priority_score > 0.02, K = min(4, count)
         annotated_nodes = topology_report.annotated_nodes
-        eligible_nodes = [n for n in annotated_nodes if n.priority_score > 0.3]
+        eligible_nodes = [n for n in annotated_nodes if n.priority_score > 0.02]
         
         # If no nodes meet the threshold, back off to at least the top priority node to prevent empty plans
         if not eligible_nodes and annotated_nodes:
