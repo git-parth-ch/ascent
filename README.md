@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/src/assets/ascent-wordmark.svg" alt="Ascent" width="280" />
+  <img src="frontend/src/assets/ascent-lockup-dark.svg" alt="Ascent" width="280" />
 </p>
 
 # Ascent

@@ -353,7 +353,7 @@ function App({ initialSample }) {
       {/* ── Architecture Selector ─────────────────────────────────────────── */}
       {!report ? (
         <div
-          className="flex-1 flex flex-col items-center justify-center p-8"
+          className="relative flex-1 flex flex-col items-center justify-center p-8"
           style={{
             backgroundImage: `url(${bgImg})`,
             backgroundSize: 'cover',
