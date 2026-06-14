@@ -14,7 +14,7 @@
 }
 
 /* ── Dark-mode CSS tokens (class strategy) ─────────────────────────────── */
-html.dark {
+.dark {
   --color-bg:      #0F0B08;
   --color-bg-alt:  #161009;
   --color-card:    #1F1510;

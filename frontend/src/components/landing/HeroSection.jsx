@@ -7,7 +7,7 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative overflow-hidden pt-36 pb-20 px-6"
+      className="dark relative overflow-hidden pt-36 pb-20 px-6"
       style={{
         backgroundImage: `url(${bgImg})`,
         backgroundSize: 'cover',
