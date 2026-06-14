@@ -12,7 +12,7 @@ class Node(BaseModel):
     timeout_ms: float = Field(..., description="Timeout threshold for requests calling this node")
     retries: int = Field(..., description="Number of retries upstream services should attempt")
     circuit_breaker: bool = Field(..., description="Whether a circuit breaker is configured on this node")
-    declared_criticality: Optional[float] = Field(None, description="Optional user-provided criticality score between 0.0 and 1.0")
+    declared_criticality: Optional[float] = Field(None, ge=0.0, le=1.0, description="Optional user-provided criticality score between 0.0 and 1.0")
     replicas: int = Field(..., description="Number of running replicas/instances of the node")
     has_dlq: bool = Field(False, description="Whether this node (if a queue) has a dead letter queue configured")
 
@@ -34,12 +34,24 @@ class Edge(BaseModel):
     class Config:
         populate_by_name = True
 
+# FIX 5: Exact valid profile names as defined in simulation/traffic_profiles.py
+VALID_TRAFFIC_PROFILES = {"steady", "burst", "spike", "diurnal"}
+
 class SystemBlueprint(BaseModel):
     system_name: str
     entry_nodes: List[str]
     nodes: List[Node]
     edges: List[Edge]
     traffic_profile: str
+
+    @field_validator("traffic_profile")
+    @classmethod
+    def validate_traffic_profile(cls, v: str) -> str:
+        if v not in VALID_TRAFFIC_PROFILES:
+            raise ValueError(
+                f"traffic_profile '{v}' is not valid. Must be one of: {sorted(VALID_TRAFFIC_PROFILES)}"
+            )
+        return v
 
     @field_validator("system_name")
     @classmethod

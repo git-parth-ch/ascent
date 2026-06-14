@@ -16,12 +16,24 @@ const edgeTypes = {
 // Hardcoded coordinates for sample architectures to guarantee pixel-perfect visual layouts
 const LAYOUTS = {
   ecommerce: {
-    "api-gateway": { x: 40, y: 160 },
-    "orders-service": { x: 280, y: 160 },
-    "payment-service": { x: 520, y: 50 },
-    "inventory-service": { x: 520, y: 170 },
-    "notification-queue": { x: 520, y: 290 },
-    "email-service": { x: 760, y: 290 },
+    // Col 1 — Entry
+    "api-gateway":        { x: 40,  y: 200 },
+    // Col 2 — Direct API-gateway children
+    "auth-service":       { x: 260, y: 40  },
+    "orders-service":     { x: 260, y: 140 },
+    "cart-service":       { x: 260, y: 240 },
+    "search-service":     { x: 260, y: 340 },
+    // Col 3 — Downstream services + queues
+    "payment-service":    { x: 500, y: 60  },
+    "inventory-service":  { x: 500, y: 160 },
+    "pricing-service":    { x: 500, y: 260 },
+    "notification-queue": { x: 500, y: 360 },
+    "analytics-service":  { x: 500, y: 460 },
+    // Col 4 — Leaf nodes (databases + consumers)
+    "payment-db":         { x: 740, y: 40  },
+    "orders-db":          { x: 740, y: 160 },
+    "inventory-db":       { x: 740, y: 280 },
+    "email-service":      { x: 740, y: 400 },
   },
   ridesharing: {
     "passenger-gateway": { x: 40, y: 80 },

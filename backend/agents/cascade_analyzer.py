@@ -189,7 +189,7 @@ class CascadeAnalyzerAgent(BaseAgent):
                     is_patched = True
                 elif patch_template == "add_dlq" and node_obj.has_dlq:
                     is_patched = True
-                elif patch_template == "adjust_retries" and node_obj.retries <= 3:
+                elif patch_template == "adjust_retries" and node_obj.retries == 1:
                     is_patched = True
 
             if is_patched:

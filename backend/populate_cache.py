@@ -2,6 +2,7 @@ import os
 import json
 from backend.models.blueprint import SystemBlueprint
 from backend.pipeline.langgraph_flow import run_ace_pipeline
+from backend.main import generate_agent_logs
 
 def main():
     samples_dir = os.path.join(os.path.dirname(__file__), "samples")
@@ -21,9 +22,13 @@ def main():
         blueprint = SystemBlueprint.model_validate(blueprint_dict)
         report = run_ace_pipeline(blueprint)
         
+        # FIX 4: Include the 'logs' field so the frontend receives complete cache data
+        report_dict = report.model_dump()
+        report_dict["logs"] = generate_agent_logs(blueprint, report_dict)
+        
         cache_path = os.path.join(cache_dir, f"{name}.json")
         with open(cache_path, "w") as f:
-            json.dump(report.model_dump(), f, indent=2)
+            json.dump(report_dict, f, indent=2)
             
         print(f"Successfully cached report to {cache_path}")
 

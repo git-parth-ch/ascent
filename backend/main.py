@@ -1,14 +1,16 @@
 import os
+import re
 import json
+import hashlib
 import logging
 import time
 from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, HTTPException, status, Query, Request
 from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
-from backend.models.blueprint import SystemBlueprint, Node
+from backend.models.blueprint import SystemBlueprint, Node, VALID_TRAFFIC_PROFILES
 from backend.models.report import CascadeAnalyzerResponse, CascadeFinding
 from backend.pipeline.langgraph_flow import run_ace_pipeline
 from backend.security.patch_validator import validate_patch
@@ -66,6 +68,11 @@ async def rate_limit_middleware(request: Request, call_next):
         timestamps.append(now)
         analyze_rate_limits[ip] = timestamps
         
+        # FIX 7: Prune IPs with empty timestamp lists to prevent unbounded memory growth
+        keys_to_delete = [k for k, v in analyze_rate_limits.items() if not v]
+        for k in keys_to_delete:
+            del analyze_rate_limits[k]
+        
     response = await call_next(request)
     return response
 
@@ -113,6 +120,15 @@ class AnalyzeRequest(BaseModel):
     force_live: bool = False
     traffic_profile: str = "steady"
 
+    @field_validator("traffic_profile")
+    @classmethod
+    def validate_traffic_profile(cls, v: str) -> str:
+        if v not in VALID_TRAFFIC_PROFILES:
+            raise ValueError(
+                f"traffic_profile '{v}' is not valid. Must be one of: {sorted(VALID_TRAFFIC_PROFILES)}"
+            )
+        return v
+
 class ApplyFixRequest(BaseModel):
     blueprint: SystemBlueprint
     finding_id: str
@@ -145,11 +161,20 @@ def get_samples():
             })
     return samples
 
+# FIX 1: Whitelist of valid sample names — prevents path traversal via os.path.join
+ALLOWED_SAMPLES = {"ecommerce", "ridesharing", "banking"}
+
 @app.get("/samples/{name}")
 def get_sample(name: str):
     """
     Returns the full blueprint JSON for the requested sample architecture.
     """
+    # FIX 1: Reject any name not in the explicit whitelist before touching the filesystem
+    if name not in ALLOWED_SAMPLES:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Sample architecture '{name}' not found."
+        )
     data = get_sample_blueprint(name)
     if not data:
         raise HTTPException(
@@ -287,12 +312,32 @@ def apply_fix(req: ApplyFixRequest):
     
     # If parameters not provided in the request body, look them up in the cached report
     if not patch_template or not patch_params:
-        cache_path = os.path.join(CACHE_DIR, f"{blueprint.system_name}.json")
-        if not os.path.exists(cache_path):
+        # FIX 2: Use the same signature-hash logic as /analyze to find the correct cache file.
+        # First, try the signature-hash path (for modified blueprints).
+        # Fall back to the base {system_name}.json (for initial sample blueprints).
+        sys_name = blueprint.system_name
+
+        resilience_states = []
+        for node in sorted(blueprint.nodes, key=lambda x: x.id):
+            resilience_states.append(f"{node.id}:cb={node.circuit_breaker}:r={node.retries}:dlq={node.has_dlq}")
+        resilience_states.append(f"profile={blueprint.traffic_profile}")
+        resilience_sig = ",".join(resilience_states)
+        sig_hash = hashlib.md5(resilience_sig.encode("utf-8")).hexdigest()
+        hashed_cache_path = os.path.join(CACHE_DIR, f"{sys_name}_{sig_hash}.json")
+        base_cache_path = os.path.join(CACHE_DIR, f"{sys_name}.json")
+
+        if os.path.exists(hashed_cache_path):
+            cache_path = hashed_cache_path
+            logger.info(f"apply-fix: using signature-hash cache: {hashed_cache_path}")
+        elif os.path.exists(base_cache_path):
+            cache_path = base_cache_path
+            logger.info(f"apply-fix: falling back to base cache: {base_cache_path}")
+        else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"No cached analysis found for '{blueprint.system_name}'. Please specify patch parameters."
+                detail=f"No cached analysis found for '{sys_name}'. Please specify patch parameters explicitly."
             )
+
         try:
             with open(cache_path, "r") as f:
                 cached_report = json.load(f)
@@ -306,6 +351,8 @@ def apply_fix(req: ApplyFixRequest):
                 )
             patch_template = target_finding["patch_template"]
             patch_params = target_finding["patch_params"]
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -357,7 +404,6 @@ def export_yaml(
     """
     Returns valid Chaos Mesh YAML configuration for the given scenario parameters.
     """
-    import re
     # Validate finding_id format (e.g. F1, F2)
     if not re.match(r"^F[0-9]+$", finding_id):
         raise HTTPException(status_code=400, detail="Invalid finding_id format. Must be like F1, F2.")

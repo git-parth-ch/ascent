@@ -338,7 +338,9 @@ function App() {
   // Export Chaos Mesh YAML
   const handleExportYaml = (finding, scenarioType) => {
     const targetNode = finding.patch_params.node_id;
-    // Map scenario names to mesh inputs
+    // magnitude_ms: severity (0.0–1.0) mapped to milliseconds (0–100ms)
+    // e.g. severity=0.5 → 50ms latency injection in Chaos Mesh YAML
+    // This is intentional — severity acts as a proxy for failure intensity.
     const magnitude = finding.severity * 100.0;
     
     fetch(`${API_BASE}/export-yaml/${finding.finding_id}?scenario_type=${scenarioType}&target_node=${targetNode}&magnitude=${magnitude}`)
